@@ -30,7 +30,7 @@
         },
         "path": "/widgets/leads_nuevos",
         "js": [
-          "https://TU-PROYECTO.vercel.app/clientes/funinabox/widgets/leads_nuevos/widget.html"
+          "https://kommo-widgets-pq8ztpilf-duckstudios.vercel.app/clientes/funinabox/widgets/leads_nuevos/widget.html"
         ]
       }
     }
