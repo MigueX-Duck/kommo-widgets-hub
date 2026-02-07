@@ -147,41 +147,36 @@
 
     <script>
         // ========================================
-        // MODO DEMO - Datos Estáticos
+        // Widget con Datos Reales de Kommo
         // ========================================
-        // Este widget muestra datos de demostración.
-        // Para datos reales, necesitarás implementar OAuth.
 
-        // Datos de demostración
-        const DEMO_DATA = {
-            currentPeriod: {
-                count: 42,
-                period: 'mes'
-            },
-            previousPeriod: {
-                count: 35,
-                period: 'mes anterior'
-            }
-        };
+        const API_BASE_URL = 'https://kommo-widgets-hub.vercel.app/api/kommo';
 
         // Función principal para cargar datos
-        function loadLeadsData() {
-            // Simular un pequeño delay como si estuviera cargando
-            setTimeout(() => {
-                const currentCount = DEMO_DATA.currentPeriod.count;
-                const previousCount = DEMO_DATA.previousPeriod.count;
+        async function loadLeadsData() {
+            try {
+                // Llamar a la API para obtener leads del mes actual
+                const response = await fetch(`${API_BASE_URL}/leads?period=month`);
 
-                // Calcular porcentaje de cambio
-                let percentChange = 0;
-                if (previousCount > 0) {
-                    percentChange = Math.round(((currentCount - previousCount) / previousCount) * 100);
-                } else if (currentCount > 0) {
-                    percentChange = 100;
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
                 }
 
-                // Actualizar UI
-                updateUI(currentCount, percentChange);
-            }, 500);
+                const data = await response.json();
+
+                if (data.success) {
+                    const currentCount = data.data.current.count;
+                    const percentChange = data.data.change.percent;
+
+                    // Actualizar UI
+                    updateUI(currentCount, percentChange);
+                } else {
+                    showError('Error al cargar datos');
+                }
+            } catch (error) {
+                console.error('Error loading leads:', error);
+                showError('Error de conexión');
+            }
         }
 
         // Función para actualizar la interfaz
@@ -192,14 +187,10 @@
             // Actualizar número principal
             var leadsCount = document.getElementById('leadsCount');
             var leadsLink = document.getElementById('leadsLink');
-            leadsCount.setAttribute('title', count + ' leads nuevos (DEMO)');
+            leadsCount.setAttribute('title', count + ' leads nuevos este mes');
             leadsLink.textContent = count;
-            leadsLink.href = '#';
-            leadsLink.onclick = function (e) {
-                e.preventDefault();
-                alert('Modo DEMO: Estos son datos de demostración.\n\nPara ver datos reales, necesitas configurar OAuth.');
-                return false;
-            };
+            leadsLink.href = 'https://funinabox.kommo.com/leads/list/';
+            leadsLink.target = '_blank';
 
             // Actualizar comparación
             var comparison = document.getElementById('comparison');
@@ -216,14 +207,26 @@
                 comparisonText.textContent = '0%';
             }
 
-            comparison.setAttribute('title', 'Comparación con período anterior: ' + percentChange + '% (DEMO)');
+            comparison.setAttribute('title', 'Comparación con mes anterior: ' + percentChange + '%');
+        }
+
+        // Función para mostrar errores
+        function showError(message) {
+            var wrapper = document.querySelector('.cell-wrapper');
+            wrapper.classList.remove('loading');
+
+            var leadsLink = document.getElementById('leadsLink');
+            leadsLink.textContent = '--';
+
+            var comparisonText = document.getElementById('comparisonText');
+            comparisonText.textContent = message;
         }
 
         // Cargar datos al iniciar
         loadLeadsData();
 
-        // Actualizar cada 30 segundos (en producción sería cada 5 minutos)
-        setInterval(loadLeadsData, 30 * 1000);
+        // Actualizar cada 5 minutos
+        setInterval(loadLeadsData, 5 * 60 * 1000);
     </script>
 </body>
 
