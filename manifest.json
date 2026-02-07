@@ -1,0 +1,38 @@
+{
+  "widget": {
+    "name": "analytics_avanzados",
+    "description": "Widgets personalizados para análisis de leads y ventas con métricas avanzadas",
+    "short_description": "Analytics CRM",
+    "version": "1.0.0",
+    "interface_version": 2,
+    "init_once": false,
+    "locale": [
+      "es_ES",
+      "es"
+    ],
+    "installation": true,
+    "support": {
+      "link": "https://funinaboxcr.com",
+      "email": "soporte@funinaboxcr.com"
+    }
+  },
+  "locations": [
+    "dashboard-widgets"
+  ],
+  "widgets": {
+    "dashboard": {
+      "leads_nuevos": {
+        "caption": {
+          "es": "Leads Nuevos"
+        },
+        "description": {
+          "es": "Cantidad de leads nuevos en el período seleccionado"
+        },
+        "path": "/widgets/leads_nuevos",
+        "js": [
+          "https://widgets.funinaboxcr.com/widgets/leads_nuevos/widget.html"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+# Archivos y carpetas temporales
+node_modules/
+.vercel/
+.env
+.DS_Store
+*.log
+
+# Archivos de desarrollo local
+test_widget_es.html
+.htaccess*
+index.php
+leads_nuevos.zip
+
+# Documentación de métodos alternativos (no necesarios en producción)
+DESPLIEGUE_GITHUB.md
+MODIFICAR_HTACCESS_WORDPRESS.md
+SOLUCIONES_BANANAHOSTING.md
+SUBIR_DIRECTO_KOMMO.md
+USAR_SERVIDOR_WORDPRESS.md
+INSTALACION.md

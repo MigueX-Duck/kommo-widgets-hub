@@ -1,0 +1,17 @@
+{
+    "name": "kommo-widgets",
+    "version": "1.0.0",
+    "description": "Servidor centralizado de widgets personalizados para Kommo CRM",
+    "main": "index.js",
+    "scripts": {
+        "dev": "vercel dev",
+        "deploy": "vercel --prod"
+    },
+    "keywords": [
+        "kommo",
+        "crm",
+        "widgets"
+    ],
+    "author": "Tu Empresa",
+    "license": "MIT"
+}

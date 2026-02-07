@@ -1,0 +1,15 @@
+{
+    "name": "leads_nuevos",
+    "title": {
+        "es": "Leads Nuevos"
+    },
+    "description": {
+        "es": "Cantidad de leads nuevos en el período seleccionado"
+    },
+    "widget_params": {
+        "size": {
+            "width": 2,
+            "height": 1
+        }
+    }
+}
