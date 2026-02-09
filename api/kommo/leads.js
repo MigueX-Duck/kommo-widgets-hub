@@ -30,6 +30,14 @@ export default async function handler(req, res) {
         });
 
         if (!currentResponse.ok) {
+            const errorText = await currentResponse.text();
+            console.error('Kommo API error:', {
+                status: currentResponse.status,
+                statusText: currentResponse.statusText,
+                body: errorText,
+                url: currentLeadsUrl
+            });
+
             if (currentResponse.status === 401) {
                 return res.status(401).json({
                     error: 'Token expired',
@@ -37,10 +45,17 @@ export default async function handler(req, res) {
                     refreshUrl: '/api/oauth/refresh'
                 });
             }
-            throw new Error(`API error: ${currentResponse.status}`);
+            throw new Error(`API error: ${currentResponse.status} - ${errorText}`);
         }
 
-        const currentData = await currentResponse.json();
+        let currentData;
+        try {
+            const responseText = await currentResponse.text();
+            currentData = responseText ? JSON.parse(responseText) : { _embedded: { leads: [] } };
+        } catch (parseError) {
+            console.error('Failed to parse current leads response:', parseError);
+            currentData = { _embedded: { leads: [] } };
+        }
 
         // Obtener leads del período anterior
         const previousLeadsUrl = `https://${subdomain}.kommo.com/api/v4/leads?` +
@@ -55,7 +70,14 @@ export default async function handler(req, res) {
             },
         });
 
-        const previousData = await previousResponse.json();
+        let previousData;
+        try {
+            const responseText = await previousResponse.text();
+            previousData = responseText ? JSON.parse(responseText) : { _embedded: { leads: [] } };
+        } catch (parseError) {
+            console.error('Failed to parse previous leads response:', parseError);
+            previousData = { _embedded: { leads: [] } };
+        }
 
         // Contar leads
         const currentCount = currentData._embedded?.leads?.length || 0;
