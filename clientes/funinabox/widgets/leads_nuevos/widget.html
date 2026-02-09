@@ -173,29 +173,41 @@
                     const parentUrl = window.parent.location.href;
                     const urlParams = new URLSearchParams(parentUrl.split('?')[1]);
                     periodParam = urlParams.get('period') || 'month';
+                    console.log('Period from parent URL:', periodParam);
                 } catch (e) {
+                    console.log('Cannot access parent URL (CORS), using default');
                     // Si hay error de CORS, intentar con window.location
                     const urlParams = new URLSearchParams(window.location.search);
                     periodParam = urlParams.get('period') || 'month';
                 }
 
                 // Mapear el período de Kommo a nuestra API
-                if (PERIOD_MAP[periodParam]) {
-                    return PERIOD_MAP[periodParam];
-                }
-
-                return 'month';
+                const mappedPeriod = PERIOD_MAP[periodParam] || 'month';
+                console.log('Mapped period:', periodParam, '->', mappedPeriod);
+                return mappedPeriod;
             } catch (error) {
                 console.error('Error getting period:', error);
                 return 'month';
             }
         }
 
+        // Variable para guardar el último período usado
+        let lastPeriod = null;
+
         // Función principal para cargar datos
         async function loadLeadsData() {
             try {
                 // Obtener el período actual del dashboard
                 const period = getCurrentPeriod();
+
+                // Solo recargar si el período cambió
+                if (lastPeriod !== null && lastPeriod === period) {
+                    console.log('Period unchanged, skipping reload');
+                    return;
+                }
+
+                lastPeriod = period;
+                console.log('Loading data for period:', period);
 
                 // Llamar a la API con el período detectado
                 const response = await fetch(`${API_BASE_URL}/leads?period=${period}`);
@@ -267,8 +279,8 @@
         // Cargar datos al iniciar
         loadLeadsData();
 
-        // Actualizar cada 5 minutos
-        setInterval(loadLeadsData, 5 * 60 * 1000);
+        // Revisar cada 2 segundos si cambió el período
+        setInterval(loadLeadsData, 2000);
     </script>
 </body>
 
