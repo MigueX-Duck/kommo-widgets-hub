@@ -88,46 +88,68 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error('Leads API error:', error);
-        return res.status(500).json({ error: 'Failed to fetch leads data' });
+        console.error('Error details:', {
+            message: error.message,
+            stack: error.stack,
+            period: req.query.period
+        });
+        return res.status(500).json({
+            error: 'Failed to fetch leads data',
+            details: error.message
+        });
     }
 }
 
 function getPeriodDates(period) {
     const now = new Date();
-    const startDate = new Date();
-    const prevStartDate = new Date();
-    const prevEndDate = new Date();
+    let startDate, prevStartDate, prevEndDate;
 
     switch (period) {
         case 'day':
+            // Hoy: desde las 00:00 de hoy hasta ahora
+            startDate = new Date(now);
             startDate.setHours(0, 0, 0, 0);
+
+            // Ayer: todo el día de ayer
+            prevStartDate = new Date(now);
             prevStartDate.setDate(now.getDate() - 1);
             prevStartDate.setHours(0, 0, 0, 0);
+
+            prevEndDate = new Date(now);
             prevEndDate.setDate(now.getDate() - 1);
             prevEndDate.setHours(23, 59, 59, 999);
             break;
+
         case 'week':
-            const dayOfWeek = now.getDay() || 7;
-            startDate.setDate(now.getDate() - dayOfWeek + 1);
+            // Esta semana: desde el lunes hasta ahora
+            const dayOfWeek = now.getDay();
+            const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Domingo = 0, ajustar a lunes
+
+            startDate = new Date(now);
+            startDate.setDate(now.getDate() - daysFromMonday);
             startDate.setHours(0, 0, 0, 0);
+
+            // Semana anterior: 7 días antes
+            prevStartDate = new Date(startDate);
             prevStartDate.setDate(startDate.getDate() - 7);
+
+            prevEndDate = new Date(startDate);
             prevEndDate.setDate(startDate.getDate() - 1);
             prevEndDate.setHours(23, 59, 59, 999);
             break;
+
         case 'month':
         default:
-            startDate.setDate(1);
-            startDate.setHours(0, 0, 0, 0);
-            prevStartDate.setMonth(now.getMonth() - 1);
-            prevStartDate.setDate(1);
-            prevStartDate.setHours(0, 0, 0, 0);
-            prevEndDate.setMonth(now.getMonth());
-            prevEndDate.setDate(0);
-            prevEndDate.setHours(23, 59, 59, 999);
+            // Este mes: desde el día 1 hasta ahora
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+
+            // Mes anterior: todo el mes anterior
+            prevStartDate = new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0);
+            prevEndDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
             break;
     }
 
-    return {
+    const result = {
         current: {
             start: Math.floor(startDate.getTime() / 1000),
             end: Math.floor(now.getTime() / 1000),
@@ -137,4 +159,7 @@ function getPeriodDates(period) {
             end: Math.floor(prevEndDate.getTime() / 1000),
         },
     };
+
+    console.log('Period dates:', period, result);
+    return result;
 }
