@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Leads Pendientes</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css"
+        href="//fonts.googleapis.com/css?family=Open+Sans:400,300&subset=latin,cyrillic-ext">
+    <link rel="stylesheet" type="text/css"
+        href='//fonts.googleapis.com/css?family=PT+Sans:400,700&subset=latin,cyrillic-ext'>
+
+    <style type="text/css">
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            text-rendering: geometricPrecision;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            font-family: 'PT Sans';
+            color: #FFFFFF;
+            background: transparent;
+        }
+
+        a,
+        a:active,
+        a:hover,
+        a:visited {
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+
+        .cell-wrapper {
+            padding: 20px 15px 15px 15px;
+        }
+
+        .cell-wrapper__caption {
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .cell-wrapper__data {
+            height: 50px;
+        }
+
+        .cell-wrapper__data__num {
+            font-size: 40px;
+            line-height: 68px;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .cell-wrapper__bottom {
+            margin-top: 15px;
+            font-size: 18px;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .cell-wrapper__bottom.red,
+        .cell-wrapper__bottom.red a {
+            color: #fe6e6e;
+        }
+
+        .cell-wrapper__bottom.green,
+        .cell-wrapper__bottom.green a {
+            color: #41cfc4;
+        }
+
+        .cell-wrapper__bottom.orange,
+        .cell-wrapper__bottom.orange a {
+            color: #ffa726;
+        }
+
+        .cell-wrapper__bottom:after {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 14px;
+            vertical-align: middle;
+            margin-top: -4px;
+            margin-left: 3px;
+        }
+
+        .cell-wrapper__bottom.green:after {
+            background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCIgd2lkdGg9IjgiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCA4IDEzIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogIzM4Y2RjMTsKICAgICAgfQogICAgPC9zdHlsZT4KICA8L2RlZnM+CiAgPHBhdGggZD0iTTguNTAyLDQuMjc5IEM4LjUwMiw0LjI3OSA3LjYwNiw1LjIwNyA3LjYwNiw1LjIwNyBDNy42MDYsNS4yMDcgNS4wMDcsMi41MTYgNS4wMDcsMi41MTYgQzUuMDA3LDIuNTE2IDUuMDA3LDEzLjAyNiA1LjAwNywxMy4wMjYgQzUuMDA3LDEzLjAyNiAzLjQ5MywxMy4wMjYgMy40OTMsMTMuMDI2IEMzLjQ5MywxMy4wMjYgMy40OTMsMi41MTYgMy40OTMsMi41MTYgQzMuNDkzLDIuNTE2IDAuODk0LDUuMjA3IDAuODk0LDUuMjA3IEMwLjg5NCw1LjIwNyAtMC4wMDIsNC4yNzkgLTAuMDAyLDQuMjc5IEMtMC4wMDIsNC4yNzkgNC4xMTksMC4wMTIgNC4xMTksMC4wMTIgQzQuMTE5LDAuMDEyIDQuMjUwLDAuMTQ4IDQuMjUwLDAuMTQ4IEM0LjI1MCwwLjE0OCA0LjM4MSwwLjAxMiA0LjM4MSwwLjAxMiBDNC4zODEsMC4wMTIgOC41MDIsNC4yNzkgOC41MDIsNC4yNzkgWiIgaWQ9InBhdGgtMSIgY2xhc3M9ImNscy0yIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz4KPC9zdmc+Cg==) no-repeat center center;
+        }
+
+        .cell-wrapper__bottom.red:after {
+            background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCIgd2lkdGg9IjkiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCA5IDEzIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogI2ZlNmU2ZTsKICAgICAgfQogICAgPC9zdHlsZT4KICA8L2RlZnM+CiAgPHBhdGggZD0iTTguNTAyLDguNzM1IEM4LjUwMiw4LjczNSA0LjM4MSwxMy4wMDIgNC4zODEsMTMuMDAyIEM0LjM4MSwxMy4wMDIgNC4yNTAsMTIuODY2IDQuMjUwLDEyLjg2NiBDNC4yNTAsMTIuODY2IDQuMTE5LDEzLjAwMiA0LjExOSwxMy4wMDIgQzQuMTE5LDEzLjAwMiAtMC4wMDIsOC43MzUgLTAuMDAyLDguNzM1IEMtMC4wMDIsOC43MzUgMC44OTQsNy44MDcgMC44OTQsNy44MDcgQzAuODk0LDcuODA3IDMuNDkzLDEwLjQ5OCAzLjQ5MywxMC40OTggQzMuNDkzLDEwLjQ5OCAzLjQ5MywtMC4wMTIgMy40OTMsLTAuMDEyIEMzLjQ5MywtMC4wMTIgNS4wMDcsLTAuMDEyIDUuMDA3LC0wLjAxMiBDNS4wMDcsLTAuMDEyIDUuMDA3LDEwLjQ5OCA1LjAwNywxMC40OTggQzUuMDA3LDEwLjQ5OCA3LjYwNiw3LjgwNyA3LjYwNiw3LjgwNyBDNy42MDYsNy44MDcgOC41MDIsOC43MzUgOC41MDIsOC43MzUgWiIgaWQ9InBhdGgtMSIgY2xhc3M9ImNscy0yIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz4KPC9zdmc+Cg==) no-repeat center center;
+        }
+
+        .cell-wrapper__caption,
+        .cell-wrapper__data,
+        .cell-wrapper__bottom {
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .loading {
+            opacity: 0.5;
+        }
+
+        .error {
+            color: #fe6e6e;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cell-wrapper loading">
+        <div class="cell-wrapper__caption">Leads Pendientes</div>
+        <div class="cell-wrapper__data">
+            <a href="#" id="leadsLink" class="cell-wrapper__data__num" title="Leads pendientes de contestar">
+                <span id="leadsCount">-</span>
+            </a>
+        </div>
+        <div class="cell-wrapper__bottom" id="percentChange">
+            <span id="percentValue">-</span>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Configuración
+        const API_BASE_URL = 'https://kommo-widgets-hub.vercel.app/api/kommo';
+
+        // Mapeo de períodos
+        const PERIOD_MAP = {
+            'day': 'day',
+            'today': 'day',
+            'yesterday': 'day',
+            'week': 'week',
+            'month': 'month',
+            'custom': 'custom',
+            'quarter': 'month',
+            'year': 'month'
+        };
+
+        function getCurrentPeriod() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const periodParam = urlParams.get('period') || 'month';
+                return PERIOD_MAP[periodParam] || 'month';
+            } catch (error) {
+                console.error('Error getting period:', error);
+                return 'month';
+            }
+        }
+
+        let lastPeriod = null;
+        let lastDateFrom = null;
+        let lastDateTo = null;
+
+        async function loadPendingLeadsData() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const period = getCurrentPeriod();
+                const dateFrom = urlParams.get('date_from');
+                const dateTo = urlParams.get('date_to');
+
+                if (lastPeriod !== null &&
+                    lastPeriod === period &&
+                    lastDateFrom === dateFrom &&
+                    lastDateTo === dateTo) {
+                    return;
+                }
+
+                lastPeriod = period;
+                lastDateFrom = dateFrom;
+                lastDateTo = dateTo;
+
+                let apiUrl = `${API_BASE_URL}/pending-leads?period=${period}`;
+
+                if (period === 'custom' && dateFrom && dateTo && dateFrom !== 'false' && dateTo !== 'false') {
+                    apiUrl += `&date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
+                }
+
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const currentCount = data.data.current.count;
+                    const percentChange = data.data.change.percent;
+
+                    updateUI(currentCount, percentChange);
+                    console.log('✅ Conectado');
+                } else {
+                    showError('Error al cargar datos');
+                }
+            } catch (error) {
+                console.error('Error loading pending leads:', error);
+                showError('Error de conexión');
+            }
+        }
+
+        function updateUI(count, percentChange) {
+            var wrapper = document.querySelector('.cell-wrapper');
+            wrapper.classList.remove('loading');
+
+            var leadsCount = document.getElementById('leadsCount');
+            var leadsLink = document.getElementById('leadsLink');
+            leadsCount.setAttribute('title', count + ' leads pendientes');
+            leadsLink.textContent = count;
+
+            var percentDiv = document.getElementById('percentChange');
+            var percentValue = document.getElementById('percentValue');
+
+            percentDiv.classList.remove('red', 'green', 'orange');
+
+            if (percentChange > 0) {
+                percentDiv.classList.add('orange');
+                percentValue.textContent = '+' + percentChange + '%';
+            } else if (percentChange < 0) {
+                percentDiv.classList.add('green');
+                percentValue.textContent = percentChange + '%';
+            } else {
+                percentValue.textContent = percentChange + '%';
+            }
+        }
+
+        function showError(message) {
+            var wrapper = document.querySelector('.cell-wrapper');
+            wrapper.classList.remove('loading');
+            wrapper.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        loadPendingLeadsData();
+        setInterval(loadPendingLeadsData, 2000);
+    </script>
+</body>
+
+</html>
