@@ -165,21 +165,11 @@
         // Función para obtener el período actual del dashboard
         function getCurrentPeriod() {
             try {
-                // El widget está en un iframe, necesitamos leer la URL del padre
-                let periodParam = 'month'; // Default
+                // Kommo pasa el período directamente en la URL del widget
+                const urlParams = new URLSearchParams(window.location.search);
+                const periodParam = urlParams.get('period') || 'month';
 
-                try {
-                    // Intentar leer la URL del dashboard padre
-                    const parentUrl = window.parent.location.href;
-                    const urlParams = new URLSearchParams(parentUrl.split('?')[1]);
-                    periodParam = urlParams.get('period') || 'month';
-                    console.log('Period from parent URL:', periodParam);
-                } catch (e) {
-                    console.log('Cannot access parent URL (CORS), using default');
-                    // Si hay error de CORS, intentar con window.location
-                    const urlParams = new URLSearchParams(window.location.search);
-                    periodParam = urlParams.get('period') || 'month';
-                }
+                console.log('Period from widget URL:', periodParam);
 
                 // Mapear el período de Kommo a nuestra API
                 const mappedPeriod = PERIOD_MAP[periodParam] || 'month';
