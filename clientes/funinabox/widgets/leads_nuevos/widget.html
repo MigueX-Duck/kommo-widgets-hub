@@ -152,11 +152,44 @@
 
         const API_BASE_URL = 'https://kommo-widgets-hub.vercel.app/api/kommo';
 
+        // Mapeo de períodos de Kommo a nuestra API
+        const PERIOD_MAP = {
+            'today': 'day',
+            'yesterday': 'day',
+            'week': 'week',
+            'month': 'month',
+            'quarter': 'month', // Usamos month como fallback
+            'year': 'month'     // Usamos month como fallback
+        };
+
+        // Función para obtener el período actual del dashboard
+        function getCurrentPeriod() {
+            try {
+                // Intentar obtener el período del dashboard de Kommo
+                // Kommo guarda esta info en el hash de la URL o en localStorage
+                const urlParams = new URLSearchParams(window.location.search);
+                const periodParam = urlParams.get('period');
+
+                if (periodParam && PERIOD_MAP[periodParam]) {
+                    return PERIOD_MAP[periodParam];
+                }
+
+                // Si no hay parámetro, usar 'month' por defecto
+                return 'month';
+            } catch (error) {
+                console.error('Error getting period:', error);
+                return 'month';
+            }
+        }
+
         // Función principal para cargar datos
         async function loadLeadsData() {
             try {
-                // Llamar a la API para obtener leads del mes actual
-                const response = await fetch(`${API_BASE_URL}/leads?period=month`);
+                // Obtener el período actual del dashboard
+                const period = getCurrentPeriod();
+
+                // Llamar a la API con el período detectado
+                const response = await fetch(`${API_BASE_URL}/leads?period=${period}`);
 
                 if (!response.ok) {
                     throw new Error(`API error: ${response.status}`);
