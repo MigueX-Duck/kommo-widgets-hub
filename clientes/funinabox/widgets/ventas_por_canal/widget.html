@@ -106,30 +106,14 @@
             padding: 20px;
         }
 
-        /* Channel Icons */
-        .icon-whatsapp {
-            color: #25D366;
-        }
+        /* Channel Icons Colors */
+        .icon-whatsapp { color: #25D366; }
+        .icon-instagram { color: #E4405F; }
+        .icon-facebook { color: #1877F2; }
+        .icon-email { color: #EA4335; }
+        .icon-web { color: #4285F4; }
+        .icon-default { color: #888; }
 
-        .icon-instagram {
-            color: #E4405F;
-        }
-
-        .icon-facebook {
-            color: #1877F2;
-        }
-
-        .icon-email {
-            color: #EA4335;
-        }
-
-        .icon-web {
-            color: #4285F4;
-        }
-
-        .icon-default {
-            color: #888;
-        }
     </style>
 </head>
 
@@ -164,6 +148,8 @@
             'whatsapp': '📱',
             'instagram': '📸',
             'facebook': '👍',
+            'redes sociales': '📱',
+            'social media': '📱',
             'email': '✉️',
             'correo': '✉️',
             'web': '🌐',
@@ -176,7 +162,7 @@
         };
 
         function getChannelIcon(channelName) {
-            const lowerName = channelName.toLowerCase();
+            const lowerName = (channelName || '').toLowerCase();
             for (const [key, icon] of Object.entries(CHANNEL_ICONS)) {
                 if (lowerName.includes(key)) {
                     return icon;
@@ -251,14 +237,14 @@
 
             var channelsList = document.getElementById('channelsList');
             var emptyState = document.getElementById('emptyState');
-
+            
             channelsList.innerHTML = '';
 
             if (channels && channels.length > 0) {
                 emptyState.style.display = 'none';
                 // Mostrar máximo 5 canales
                 const topChannels = channels.slice(0, 5);
-
+                
                 topChannels.forEach(item => {
                     const icon = getChannelIcon(item.channel);
                     const channelDiv = document.createElement('div');
