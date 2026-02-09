@@ -169,11 +169,15 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const periodParam = urlParams.get('period') || 'month';
 
-                console.log('Period from widget URL:', periodParam);
+                console.log('===== PERIOD DEBUG =====');
+                console.log('Full URL:', window.location.href);
+                console.log('Period parameter from Kommo:', periodParam);
+                console.log('All URL params:', Object.fromEntries(urlParams));
 
                 // Mapear el período de Kommo a nuestra API
                 const mappedPeriod = PERIOD_MAP[periodParam] || 'month';
                 console.log('Mapped period:', periodParam, '->', mappedPeriod);
+                console.log('========================');
                 return mappedPeriod;
             } catch (error) {
                 console.error('Error getting period:', error);
