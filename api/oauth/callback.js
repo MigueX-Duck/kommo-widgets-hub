@@ -1,3 +1,5 @@
+import { saveTokens } from '../../lib/tokenManager.js';
+
 export default async function handler(req, res) {
     const { code, state, referer } = req.query;
 
@@ -33,32 +35,32 @@ export default async function handler(req, res) {
         if (!response.ok) {
             const error = await response.text();
             console.error('Token exchange error:', error);
-            return res.status(500).json({ error: 'Failed to exchange code for token' });
+            return res.status(500).json({ error: 'Failed to exchange code for token', details: error });
         }
 
         const tokens = await response.json();
 
-        // En producción, guardaríamos estos tokens en una base de datos
-        // Por ahora, los retornamos para que se configuren manualmente en Vercel
+        // Guardar tokens en Vercel KV
+        const saved = await saveTokens(
+            tokens.access_token,
+            tokens.refresh_token,
+            tokens.expires_in
+        );
 
+        if (!saved) {
+            return res.status(500).json({ error: 'Failed to save tokens to storage' });
+        }
+
+        // Retornar éxito
         return res.status(200).json({
             success: true,
-            message: 'Authorization successful! Please save these tokens in Vercel environment variables:',
-            tokens: {
-                access_token: tokens.access_token,
-                refresh_token: tokens.refresh_token,
-                expires_in: tokens.expires_in,
-            },
-            instructions: [
-                '1. Go to Vercel Dashboard → Settings → Environment Variables',
-                '2. Add KOMMO_ACCESS_TOKEN with the access_token value',
-                '3. Add KOMMO_REFRESH_TOKEN with the refresh_token value',
-                '4. Redeploy the project',
-            ],
+            message: '¡OAuth configurado exitosamente! Los tokens se guardaron automáticamente.',
+            expires_in: tokens.expires_in,
+            expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
         });
 
     } catch (error) {
         console.error('OAuth callback error:', error);
-        return res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ error: 'Internal server error', details: error.message });
     }
 }

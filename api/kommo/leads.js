@@ -1,18 +1,13 @@
+import { getValidAccessToken } from '../../lib/tokenManager.js';
+
 export default async function handler(req, res) {
     const { period = 'month', date_from, date_to } = req.query;
 
     const subdomain = process.env.KOMMO_SUBDOMAIN;
-    const accessToken = process.env.KOMMO_ACCESS_TOKEN;
-
-    if (!accessToken) {
-        return res.status(401).json({
-            error: 'Not authorized',
-            message: 'Please authorize the integration first',
-            authUrl: '/api/oauth/authorize'
-        });
-    }
 
     try {
+        // Obtener token válido (auto-refresh si es necesario)
+        const accessToken = await getValidAccessToken();
         // Calcular fechas según el período
         const dates = getPeriodDates(period, date_from, date_to);
 

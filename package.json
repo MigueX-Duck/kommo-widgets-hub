@@ -13,5 +13,8 @@
         "widgets"
     ],
     "author": "Tu Empresa",
-    "license": "MIT"
+    "license": "MIT",
+    "dependencies": {
+        "@vercel/kv": "^3.0.0"
+    }
 }
