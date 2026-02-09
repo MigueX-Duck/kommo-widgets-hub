@@ -98,7 +98,6 @@ async function getWonLeads(subdomain, accessToken, wonStatusIds, dateRange) {
     try {
         const statusFilter = wonStatusIds.map(id => `filter[statuses][0][status_id][]=${id}`).join('&');
 
-        // Incluimos 'custom_fields_values' para buscar el origen
         const url = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `${statusFilter}&` +
             `filter[closed_at][from]=${dateRange.start}&` +
@@ -140,26 +139,34 @@ function groupLeadsByChannel(leads) {
 
         // Intentar encontrar el canal en custom fields
         if (lead.custom_fields_values) {
-            // Buscar campos que parezcan ser el origen/canal
-            const sourceField = lead.custom_fields_values.find(field => {
-                const name = field.field_name.toLowerCase();
-                return name.includes('origen') ||
-                    name.includes('source') ||
-                    name.includes('canal') ||
-                    name.includes('channel') ||
-                    name.includes('fuente');
-            });
+            // 1. Prioridad: Campo específico identificado "Cómo nos encontró" (ID: 1020910)
+            const knownField = lead.custom_fields_values.find(f => f.field_id === 1020910 || f.field_name === 'Cómo nos encontró');
 
-            if (sourceField && sourceField.values && sourceField.values.length > 0) {
-                channel = sourceField.values[0].value;
+            // 2. Fallback: Tracking data (utm_source - ID: 263286)
+            const utmField = lead.custom_fields_values.find(f => f.field_id === 263286 || f.field_name === 'utm_source');
+
+            if (knownField && knownField.values && knownField.values.length > 0) {
+                channel = knownField.values[0].value;
+            } else if (utmField && utmField.values && utmField.values.length > 0) {
+                channel = utmField.values[0].value;
+            } else {
+                // 3. Fallback: Búsqueda por palabras clave
+                const sourceField = lead.custom_fields_values.find(field => {
+                    const name = field.field_name.toLowerCase();
+                    return name.includes('origen') ||
+                        name.includes('source') ||
+                        name.includes('canal') ||
+                        name.includes('channel') ||
+                        name.includes('fuente');
+                });
+
+                if (sourceField && sourceField.values && sourceField.values.length > 0) {
+                    channel = sourceField.values[0].value;
+                }
             }
         }
 
-        // Si no se encuentra en custom fields, intentar con tags si channel sigue siendo Desconocido
         if (channel === 'Desconocido' && lead._embedded && lead._embedded.tags) {
-            // Esto es más arriesgado porque pueden haber muchos tags, 
-            // pero a veces se usan tags como "Instagram", "Facebook", etc.
-            // Por ahora lo dejaremos como fallback simple si hay un tag que coincida con redes conocidas
             const knownChannels = ['instagram', 'facebook', 'whatsapp', 'telegram', 'email', 'web', 'sitio web', 'referido'];
             const foundTag = lead._embedded.tags.find(tag => knownChannels.includes(tag.name.toLowerCase()));
             if (foundTag) {
@@ -167,7 +174,6 @@ function groupLeadsByChannel(leads) {
             }
         }
 
-        // Normalizar nombre del canal (primera letra mayúscula)
         channel = channel.charAt(0).toUpperCase() + channel.slice(1);
 
         if (!grouped[channel]) {
@@ -176,7 +182,6 @@ function groupLeadsByChannel(leads) {
         grouped[channel]++;
     });
 
-    // Convertir a array y ordenar descilindemente
     return Object.entries(grouped)
         .map(([channel, count]) => ({ channel, count }))
         .sort((a, b) => b.count - a.count);
