@@ -154,12 +154,13 @@
 
         // Mapeo de períodos de Kommo a nuestra API
         const PERIOD_MAP = {
-            'today': 'day',
-            'yesterday': 'day',
-            'week': 'week',
-            'month': 'month',
-            'quarter': 'month', // Usamos month como fallback
-            'year': 'month'     // Usamos month como fallback
+            'day': 'day',       // Hoy
+            'today': 'day',     // Hoy (alternativo)
+            'yesterday': 'day', // Ayer
+            'week': 'week',     // Semana
+            'month': 'month',   // Mes
+            'quarter': 'month', // Trimestre (fallback a mes)
+            'year': 'month'     // Año (fallback a mes)
         };
 
         // Función para obtener el período actual del dashboard
