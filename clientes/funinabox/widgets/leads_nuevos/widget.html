@@ -159,6 +159,7 @@
             'yesterday': 'day', // Ayer
             'week': 'week',     // Semana
             'month': 'month',   // Mes
+            'custom': 'custom', // Fechas personalizadas
             'quarter': 'month', // Trimestre (fallback a mes)
             'year': 'month'     // Año (fallback a mes)
         };
@@ -186,26 +187,45 @@
             }
         }
 
-        // Variable para guardar el último período usado
+        // Variable para guardar el último período y fechas usadas
         let lastPeriod = null;
+        let lastDateFrom = null;
+        let lastDateTo = null;
 
         // Función principal para cargar datos
         async function loadLeadsData() {
             try {
-                // Obtener el período actual del dashboard
+                // Obtener parámetros de la URL
+                const urlParams = new URLSearchParams(window.location.search);
                 const period = getCurrentPeriod();
+                const dateFrom = urlParams.get('date_from');
+                const dateTo = urlParams.get('date_to');
 
-                // Solo recargar si el período cambió
-                if (lastPeriod !== null && lastPeriod === period) {
-                    console.log('Period unchanged, skipping reload');
+                // Solo recargar si algo cambió
+                if (lastPeriod !== null &&
+                    lastPeriod === period &&
+                    lastDateFrom === dateFrom &&
+                    lastDateTo === dateTo) {
+                    console.log('Period and dates unchanged, skipping reload');
                     return;
                 }
 
                 lastPeriod = period;
-                console.log('Loading data for period:', period);
+                lastDateFrom = dateFrom;
+                lastDateTo = dateTo;
 
-                // Llamar a la API con el período detectado
-                const response = await fetch(`${API_BASE_URL}/leads?period=${period}`);
+                console.log('Loading data for period:', period, 'dates:', dateFrom, dateTo);
+
+                // Construir URL de la API
+                let apiUrl = `${API_BASE_URL}/leads?period=${period}`;
+
+                // Si es período custom y hay fechas, agregarlas
+                if (period === 'custom' && dateFrom && dateTo && dateFrom !== 'false' && dateTo !== 'false') {
+                    apiUrl += `&date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
+                }
+
+                // Llamar a la API
+                const response = await fetch(apiUrl);
 
                 if (!response.ok) {
                     throw new Error(`API error: ${response.status}`);

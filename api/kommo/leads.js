@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-    const { period = 'month' } = req.query;
+    const { period = 'month', date_from, date_to } = req.query;
 
     const subdomain = process.env.KOMMO_SUBDOMAIN;
     const accessToken = process.env.KOMMO_ACCESS_TOKEN;
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
     try {
         // Calcular fechas según el período
-        const dates = getPeriodDates(period);
+        const dates = getPeriodDates(period, date_from, date_to);
 
         // Obtener leads del período actual
         const currentLeadsUrl = `https://${subdomain}.kommo.com/api/v4/leads?` +
@@ -122,11 +122,53 @@ export default async function handler(req, res) {
     }
 }
 
-function getPeriodDates(period) {
+function getPeriodDates(period, dateFrom, dateTo) {
     const now = new Date();
     let startDate, prevStartDate, prevEndDate;
 
     switch (period) {
+        case 'custom':
+            // Fechas personalizadas: parsear date_from y date_to
+            if (dateFrom && dateTo) {
+                // Formato: DD/MM/YYYY
+                const [dayFrom, monthFrom, yearFrom] = dateFrom.split('/');
+                const [dayTo, monthTo, yearTo] = dateTo.split('/');
+
+                startDate = new Date(yearFrom, monthFrom - 1, dayFrom, 0, 0, 0, 0);
+                const endDate = new Date(yearTo, monthTo - 1, dayTo, 23, 59, 59, 999);
+
+                // Calcular período anterior (mismo número de días)
+                const durationMs = endDate.getTime() - startDate.getTime();
+                prevEndDate = new Date(startDate.getTime() - 1);
+                prevStartDate = new Date(prevEndDate.getTime() - durationMs);
+
+                console.log('Custom period:', {
+                    from: dateFrom,
+                    to: dateTo,
+                    startDate,
+                    endDate,
+                    prevStartDate,
+                    prevEndDate
+                });
+
+                const result = {
+                    current: {
+                        start: Math.floor(startDate.getTime() / 1000),
+                        end: Math.floor(endDate.getTime() / 1000),
+                    },
+                    previous: {
+                        start: Math.floor(prevStartDate.getTime() / 1000),
+                        end: Math.floor(prevEndDate.getTime() / 1000),
+                    },
+                };
+
+                console.log('Custom period dates:', result);
+                return result;
+            }
+            // Si no hay fechas, usar mes por defecto
+            period = 'month';
+        // Continuar al caso 'month'
+
         case 'day':
             // Hoy: desde las 00:00 de hoy hasta ahora
             startDate = new Date(now);
