@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Leads Cerrados</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css"
+        href="//fonts.googleapis.com/css?family=Open+Sans:400,300&subset=latin,cyrillic-ext">
+    <link rel="stylesheet" type="text/css"
+        href='//fonts.googleapis.com/css?family=PT+Sans:400,700&subset=latin,cyrillic-ext'>
+
+    <style type="text/css">
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            text-rendering: geometricPrecision;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            font-family: 'PT Sans';
+            color: #FFFFFF;
+            background: transparent;
+        }
+
+        a,
+        a:active,
+        a:hover,
+        a:visited {
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+
+        .cell-wrapper {
+            padding: 20px 15px 15px 15px;
+        }
+
+        .cell-wrapper__caption {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .metric {
+            margin-bottom: 12px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric__label {
+            font-family: 'PT Sans', sans-serif;
+            opacity: 0.9;
+        }
+
+        .metric__value {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .metric__value.total {
+            font-size: 32px;
+        }
+
+        .metric__value.won {
+            color: #41cfc4;
+        }
+
+        .metric__value.lost {
+            color: #fe6e6e;
+        }
+
+        .metric__percent {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-left: 5px;
+        }
+
+        .loading {
+            opacity: 0.5;
+        }
+
+        .error {
+            color: #fe6e6e;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cell-wrapper loading">
+        <div class="cell-wrapper__caption">Leads Cerrados</div>
+
+        <div class="metric">
+            <span class="metric__label">📊 Total Cerrados</span>
+            <span class="metric__value total" id="totalCount">-</span>
+        </div>
+
+        <div class="metric">
+            <span class="metric__label">✅ Ganados</span>
+            <span>
+                <span class="metric__value won" id="wonCount">-</span>
+                <span class="metric__percent" id="wonPercent"></span>
+            </span>
+        </div>
+
+        <div class="metric">
+            <span class="metric__label">❌ Perdidos</span>
+            <span>
+                <span class="metric__value lost" id="lostCount">-</span>
+                <span class="metric__percent" id="lostPercent"></span>
+            </span>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Configuración
+        const API_BASE_URL = 'https://kommo-widgets-hub.vercel.app/api/kommo';
+
+        // Mapeo de períodos de Kommo a nuestra API
+        const PERIOD_MAP = {
+            'day': 'day',       // Hoy
+            'today': 'day',     // Hoy (alternativo)
+            'yesterday': 'day', // Ayer
+            'week': 'week',     // Semana
+            'month': 'month',   // Mes
+            'custom': 'custom', // Fechas personalizadas
+            'quarter': 'month', // Trimestre (fallback a mes)
+            'year': 'month'     // Año (fallback a mes)
+        };
+
+        // Función para obtener el período actual del dashboard
+        function getCurrentPeriod() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const periodParam = urlParams.get('period') || 'month';
+
+                const mappedPeriod = PERIOD_MAP[periodParam] || 'month';
+                return mappedPeriod;
+            } catch (error) {
+                console.error('Error getting period:', error);
+                return 'month';
+            }
+        }
+
+        // Variable para guardar el último período y fechas usadas
+        let lastPeriod = null;
+        let lastDateFrom = null;
+        let lastDateTo = null;
+
+        // Función principal para cargar datos
+        async function loadClosedLeadsData() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const period = getCurrentPeriod();
+                const dateFrom = urlParams.get('date_from');
+                const dateTo = urlParams.get('date_to');
+
+                // Solo recargar si algo cambió
+                if (lastPeriod !== null &&
+                    lastPeriod === period &&
+                    lastDateFrom === dateFrom &&
+                    lastDateTo === dateTo) {
+                    return;
+                }
+
+                lastPeriod = period;
+                lastDateFrom = dateFrom;
+                lastDateTo = dateTo;
+
+                // Construir URL de la API
+                let apiUrl = `${API_BASE_URL}/closed-leads?period=${period}`;
+
+                // Si es período custom y hay fechas, agregarlas
+                if (period === 'custom' && dateFrom && dateTo && dateFrom !== 'false' && dateTo !== 'false') {
+                    apiUrl += `&date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
+                }
+
+                // Llamar a la API
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    updateUI(data.data);
+                    console.log('✅ Conectado');
+                } else {
+                    showError('Error al cargar datos');
+                }
+            } catch (error) {
+                console.error('Error loading closed leads:', error);
+                showError('Error de conexión');
+            }
+        }
+
+        // Función para actualizar la interfaz
+        function updateUI(data) {
+            var wrapper = document.querySelector('.cell-wrapper');
+            wrapper.classList.remove('loading');
+
+            // Actualizar totales
+            document.getElementById('totalCount').textContent = data.current.total;
+            document.getElementById('wonCount').textContent = data.current.won;
+            document.getElementById('lostCount').textContent = data.current.lost;
+
+            // Actualizar porcentajes
+            document.getElementById('wonPercent').textContent = `(${data.current.won_percent}%)`;
+            document.getElementById('lostPercent').textContent = `(${data.current.lost_percent}%)`;
+        }
+
+        // Función para mostrar error
+        function showError(message) {
+            var wrapper = document.querySelector('.cell-wrapper');
+            wrapper.classList.remove('loading');
+            wrapper.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        // Cargar datos al inicio
+        loadClosedLeadsData();
+
+        // Recargar cada 2 segundos para detectar cambios de período
+        setInterval(loadClosedLeadsData, 2000);
+    </script>
+</body>
+
+</html>
