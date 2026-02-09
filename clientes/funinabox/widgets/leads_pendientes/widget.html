@@ -112,12 +112,97 @@
             text-align: center;
             padding: 20px;
         }
+
+        /* Info icon styles */
+        .info-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            cursor: help;
+            margin-left: 8px;
+            position: relative;
+            vertical-align: middle;
+        }
+
+        .info-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Tooltip styles */
+        .tooltip {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: #FFFFFF;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: normal;
+            width: 220px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-family: 'PT Sans', sans-serif;
+            font-weight: normal;
+        }
+
+        .info-icon:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.95);
+        }
+
+        .tooltip-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .tooltip-section {
+            margin-top: 8px;
+        }
+
+        .tooltip-item {
+            margin: 4px 0;
+        }
     </style>
 </head>
 
 <body>
     <div class="cell-wrapper loading">
-        <div class="cell-wrapper__caption">Leads Pendientes</div>
+        <div class="cell-wrapper__caption">
+            Leads Pendientes
+            <span class="info-icon">
+                ℹ️
+                <div class="tooltip">
+                    <div class="tooltip-title">Leads Pendientes</div>
+                    Muestra todos los leads que NO están cerrados (ni ganados ni perdidos).
+                    <div class="tooltip-section">
+                        <div class="tooltip-item">🟢 Verde = Menos pendientes (bueno)</div>
+                        <div class="tooltip-item">🟠 Naranja = Más pendientes (atención)</div>
+                    </div>
+                </div>
+            </span>
+        </div>
         <div class="cell-wrapper__data">
             <a href="#" id="leadsLink" class="cell-wrapper__data__num" title="Leads pendientes de contestar">
                 <span id="leadsCount">-</span>
