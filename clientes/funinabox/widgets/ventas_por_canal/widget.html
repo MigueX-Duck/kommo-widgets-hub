@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Ventas por Canal</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css"
+        href="//fonts.googleapis.com/css?family=Open+Sans:400,300&subset=latin,cyrillic-ext">
+    <link rel="stylesheet" type="text/css"
+        href='//fonts.googleapis.com/css?family=PT+Sans:400,700&subset=latin,cyrillic-ext'>
+
+    <style type="text/css">
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            text-rendering: geometricPrecision;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            font-family: 'PT Sans';
+            color: #FFFFFF;
+            background: transparent;
+        }
+
+        a,
+        a:active,
+        a:hover,
+        a:visited {
+            color: #FFFFFF;
+            text-decoration: none;
+        }
+
+        .cell-wrapper {
+            padding: 20px 15px 15px 15px;
+        }
+
+        .cell-wrapper__caption {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .cell-wrapper__data {
+            margin-bottom: 10px;
+        }
+
+        .cell-wrapper__channels {
+            font-size: 13px;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .channel-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .channel-item:last-child {
+            border-bottom: none;
+        }
+
+        .channel-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .channel-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .channel-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .channel-count {
+            font-weight: bold;
+            color: #41cfc4;
+            margin-left: 10px;
+        }
+
+        .loading {
+            opacity: 0.5;
+        }
+
+        .error {
+            color: #fe6e6e;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Channel Icons */
+        .icon-whatsapp {
+            color: #25D366;
+        }
+
+        .icon-instagram {
+            color: #E4405F;
+        }
+
+        .icon-facebook {
+            color: #1877F2;
+        }
+
+        .icon-email {
+            color: #EA4335;
+        }
+
+        .icon-web {
+            color: #4285F4;
+        }
+
+        .icon-default {
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cell-wrapper loading">
+        <div class="cell-wrapper__caption">Ventas por Canal</div>
+        <div class="cell-wrapper__channels" id="channelsList">
+            <!-- Channels will be inserted here -->
+        </div>
+        <div id="emptyState" style="display: none; text-align: center; color: #888; padding: 20px;">
+            Sin ventas en este período
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Configuración
+        const API_BASE_URL = 'https://kommo-widgets-hub.vercel.app/api/kommo';
+
+        // Mapeo de períodos
+        const PERIOD_MAP = {
+            'day': 'day',
+            'today': 'day',
+            'yesterday': 'day',
+            'week': 'week',
+            'month': 'month',
+            'custom': 'custom',
+            'quarter': 'month',
+            'year': 'month'
+        };
+
+        const CHANNEL_ICONS = {
+            'whatsapp': '📱',
+            'instagram': '📸',
+            'facebook': '👍',
+            'email': '✉️',
+            'correo': '✉️',
+            'web': '🌐',
+            'sitio web': '🌐',
+            'website': '🌐',
+            'referido': '👥',
+            'telefono': '📞',
+            'llamada': '📞',
+            'desconocido': '❓'
+        };
+
+        function getChannelIcon(channelName) {
+            const lowerName = channelName.toLowerCase();
+            for (const [key, icon] of Object.entries(CHANNEL_ICONS)) {
+                if (lowerName.includes(key)) {
+                    return icon;
+                }
+            }
+            return '📄';
+        }
+
+        function getCurrentPeriod() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const periodParam = urlParams.get('period') || 'month';
+                return PERIOD_MAP[periodParam] || 'month';
+            } catch (error) {
+                console.error('Error getting period:', error);
+                return 'month';
+            }
+        }
+
+        let lastPeriod = null;
+        let lastDateFrom = null;
+        let lastDateTo = null;
+
+        async function loadChannelData() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const period = getCurrentPeriod();
+                const dateFrom = urlParams.get('date_from');
+                const dateTo = urlParams.get('date_to');
+
+                if (lastPeriod !== null &&
+                    lastPeriod === period &&
+                    lastDateFrom === dateFrom &&
+                    lastDateTo === dateTo) {
+                    return;
+                }
+
+                lastPeriod = period;
+                lastDateFrom = dateFrom;
+                lastDateTo = dateTo;
+
+                let apiUrl = `${API_BASE_URL}/sales-by-channel?period=${period}`;
+
+                if (period === 'custom' && dateFrom && dateTo && dateFrom !== 'false' && dateTo !== 'false') {
+                    apiUrl += `&date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
+                }
+
+                const response = await fetch(apiUrl);
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const byChannel = data.data.current.by_channel;
+                    updateUI(byChannel);
+                    console.log('✅ Conectado');
+                } else {
+                    showError('Error al cargar datos');
+                }
+            } catch (error) {
+                console.error('Error loading channel sales:', error);
+                showError('Error de conexión');
+            }
+        }
+
+        function updateUI(channels) {
+            var wrapper = document.querySelector('.cell-wrapper');
+            wrapper.classList.remove('loading');
+
+            var channelsList = document.getElementById('channelsList');
+            var emptyState = document.getElementById('emptyState');
+
+            channelsList.innerHTML = '';
+
+            if (channels && channels.length > 0) {
+                emptyState.style.display = 'none';
+                // Mostrar máximo 5 canales
+                const topChannels = channels.slice(0, 5);
+
+                topChannels.forEach(item => {
+                    const icon = getChannelIcon(item.channel);
+                    const channelDiv = document.createElement('div');
+                    channelDiv.className = 'channel-item';
+                    channelDiv.innerHTML = `
+                        <div class="channel-info">
+                            <span class="channel-icon">${icon}</span>
+                            <span class="channel-name" title="${item.channel}">${item.channel}</span>
+                        </div>
+                        <span class="channel-count">${item.count}</span>
+                    `;
+                    channelsList.appendChild(channelDiv);
+                });
+            } else {
+                emptyState.style.display = 'block';
+            }
+        }
+
+        function showError(message) {
+            var wrapper = document.querySelector('.cell-wrapper');
+            wrapper.classList.remove('loading');
+            wrapper.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        loadChannelData();
+        setInterval(loadChannelData, 2000);
+    </script>
+</body>
+
+</html>
