@@ -306,8 +306,8 @@
             reasonsList.innerHTML = '';
 
             if (byReason && byReason.length > 0) {
-                // Mostrar máximo 3 motivos principales
-                const topReasons = byReason.slice(0, 3);
+                // Mostrar máximo 6 motivos principales para que la suma cuadre
+                const topReasons = byReason.slice(0, 6);
                 topReasons.forEach(item => {
                     const reasonDiv = document.createElement('div');
                     reasonDiv.className = 'reason-item';
