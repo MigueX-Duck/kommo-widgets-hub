@@ -25,6 +25,7 @@
             font-family: 'PT Sans';
             color: #FFFFFF;
             background: transparent;
+            overflow: hidden;
         }
 
         a,
@@ -88,12 +89,17 @@
             background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCIgd2lkdGg9IjkiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCA5IDEzIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogI2ZlNmU2ZTsKICAgICAgfQogICAgPC9zdHlsZT4KICA8L2RlZnM+CiAgPHBhdGggZD0iTTguNTAyLDguNzM1IEM4LjUwMiw4LjczNSA0LjM4MSwxMy4wMDIgNC4zODEsMTMuMDAyIEM0LjM4MSwxMy4wMDIgNC4yNTAsMTIuODY2IDQuMjUwLDEyLjg2NiBDNC4yNTAsMTIuODY2IDQuMTE5LDEzLjAwMiA0LjExOSwxMy4wMDIgQzQuMTE5LDEzLjAwMiAtMC4wMDIsOC43MzUgLTAuMDAyLDguNzM1IEMtMC4wMDIsOC43MzUgMC44OTQsNy44MDcgMC44OTQsNy44MDcgQzAuODk0LDcuODA3IDMuNDkzLDEwLjQ5OCAzLjQ5MywxMC40OTggQzMuNDkzLDEwLjQ5OCAzLjQ5MywtMC4wMTIgMy40OTMsLTAuMDEyIEMzLjQ5MywtMC4wMTIgNS4wMDcsLTAuMDEyIDUuMDA3LC0wLjAxMiBDNS4wMDcsLTAuMDEyIDUuMDA3LDEwLjQ5OCA1LjAwNywxMC40OTggQzUuMDA3LDEwLjQ5OCA3LjYwNiw3LjgwNyA3LjYwNiw3LjgwNyBDNy42MDYsNy44MDcgOC41MDIsOC43MzUgOC41MDIsOC43MzUgWiIgaWQ9InBhdGgtMSIgY2xhc3M9ImNscy0yIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz4KPC9zdmc+Cg==) no-repeat center center;
         }
 
-        .cell-wrapper__caption,
+        .cell-wrapper__caption {
+            position: relative;
+            white-space: nowrap;
+            width: 100%;
+        }
+
         .cell-wrapper__data,
         .cell-wrapper__bottom {
             position: relative;
             white-space: nowrap;
-            /* overflow: hidden; Removed to allow tooltips to show */
+            overflow: hidden;
             width: 100%;
         }
 
@@ -130,7 +136,7 @@
 
         .tooltip {
             position: absolute;
-            bottom: 25px;
+            top: 25px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.95);
@@ -159,11 +165,11 @@
         .tooltip::after {
             content: '';
             position: absolute;
-            top: 100%;
+            bottom: 100%;
             left: 50%;
             transform: translateX(-50%);
             border: 6px solid transparent;
-            border-top-color: rgba(0, 0, 0, 0.95);
+            border-bottom-color: rgba(0, 0, 0, 0.95);
         }
     </style>
 </head>

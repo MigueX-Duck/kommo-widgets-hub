@@ -25,6 +25,7 @@
             font-family: 'PT Sans';
             color: #FFFFFF;
             background: transparent;
+            overflow: hidden;
         }
 
         a,
@@ -152,7 +153,7 @@
 
         .tooltip {
             position: absolute;
-            bottom: 25px;
+            top: 25px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.95);
@@ -181,11 +182,11 @@
         .tooltip::after {
             content: '';
             position: absolute;
-            top: 100%;
+            bottom: 100%;
             left: 50%;
             transform: translateX(-50%);
             border: 6px solid transparent;
-            border-top-color: rgba(0, 0, 0, 0.95);
+            border-bottom-color: rgba(0, 0, 0, 0.95);
         }
     </style>
 </head>
