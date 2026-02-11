@@ -278,6 +278,13 @@ function getPeriodDates(period, dateFrom, dateTo) {
         },
     };
 
+    // Caso especial para 'month': si estamos en el mes actual, comparar MTD (Month To Date)
+    if (period === 'month') {
+        const durationSeconds = result.current.end - result.current.start;
+        // Comparar con el mismo número de segundos del mes anterior
+        result.previous.end = result.previous.start + durationSeconds;
+    }
+
     console.log('Period dates:', period, result);
     return result;
 }
