@@ -31,13 +31,24 @@ export default async function handler(req, res) {
                 pipelinesData._embedded.pipelines.forEach(pipeline => {
                     if (pipeline._embedded && pipeline._embedded.statuses) {
                         pipeline._embedded.statuses.forEach(status => {
-                            const statusName = status.name.toLowerCase();
-                            // Identificar estatus de cierre (Ganado o Perdido/Cancelado)
-                            if (statusName.includes('perdido') ||
-                                statusName.includes('no realizado') ||
-                                statusName.includes('rechazado') ||
-                                statusName.includes('cancelado')) {
+                            // En Kommo API v4:
+                            // type 142 = Ganado (Won)
+                            // type 143 = Perdido (Lost)
+                            if (status.type === 143) {
                                 closedStatusIds.push(status.id);
+                            } else {
+                                // Fallback por si el type no viene (depende de la versión/configuración)
+                                const statusName = status.name.toLowerCase();
+                                if (statusName.includes('perdido') ||
+                                    statusName.includes('no realizado') ||
+                                    statusName.includes('rechazado') ||
+                                    statusName.includes('cancelado') ||
+                                    statusName.includes('spam') ||
+                                    statusName.includes('descartado')) {
+                                    if (!closedStatusIds.includes(status.id)) {
+                                        closedStatusIds.push(status.id);
+                                    }
+                                }
                             }
                         });
                     }
