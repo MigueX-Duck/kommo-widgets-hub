@@ -82,31 +82,28 @@
         .cell-wrapper__bottom:after {
             content: "";
             display: inline-block;
-            width: 10px;
-            height: 14px;
+            width: 12px;
+            height: 12px;
             vertical-align: middle;
-            margin-top: -4px;
-            margin-left: 3px;
+            margin-top: -2px;
+            margin-left: 5px;
+            background-color: currentColor;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
         }
 
         .cell-wrapper__bottom.up:after {
-            background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCIgd2lkdGg9IjgiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCA4IDEzIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogY3VycmVudENvbG9yOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBkPSJNOC41MDIsNC4yNzkgQzguNTAyLDQuMjc5IDcuNjA2LDUuMjA3IDcuNjA2LDUuMjA3IEM3LjYwNiw1LjIwNyA1LjAwNywyLjUxNiA1LjAwNywyLjUxNiBDNS4wMDcsMi41MTYgNS4wMDcsMTMuMDI2IDUuMDAsMTMuMDI2IEM1LjAwNywxMy4wMjYgMy40OTMsMTMuMDI2IDMuNDkzLDEzLjAyNiBDMy40OTMsMTMuMDI2IDMuNDkzLDIuNTE2IDMuNDkzLDIuNTE2IEMzLjQ5MywyLjUxNiAwLjg5NCw1LjIwNyAwLjg5NCw1LjIwNyBDMC44OTQsNS4yMDcgLTAuMDAsNC4yNzkgLTAuMDAsNC4yNzkgQy0wLjAwMiw0LjI3OSA0LjExOSwwLjAxMiA0LjExOSwwLjAxMiBDNC4xMTksMC4wMTIgNC4yNTAsMC4xNDggNC4yNTAsMC4xNDggQzQuMjUwLDAuMTQ4IDQuMzgxLDAuMDEyIDQuMzgxLDAuMDEyIEM0LjM4MSwwLjAxMiA4LjUwMiw0LjI3OSA4LjUwMiw0LjI3OSBaIiBpZD0icGF0aC0xIiBjbGFzcz0iY2xzLTIiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPgo8L3N2Zz4K) no-repeat center center;
-            filter: grayscale(100%) brightness(200%);
+            -webkit-mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTcgMTRsNS01IDUgNXoiLz48L3N2Zz4=);
+            mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTcgMTRsNS01IDUgNXoiLz48L3N2Zz4=);
         }
 
         .cell-wrapper__bottom.down:after {
-            background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCIgd2lkdGg9IjkiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCA5IDEzIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogY3VycmVudENvbG9yOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBkPSJNOC41MDIsOC43MzUgQzguNTAyLDguNzM1IDQuMzgxLDEzLjAwMiA0LjM4MSwxMy4wMDIgQzQuMzgxLDEzLjAwMiA0LjI1MCwxMi44NjYgNC4yNTAsMTIuODY2IEM0LjI1MCwxMi44NjYgNC4xMTksMTMuMDAyIDQuMTE5LDEzLjAwMiBDNC4xMTksMTMuMDI2IC0wLjAwMiw4LjczNSAtMC4wMDIsOC43MzUgQy0wLjAwMiw4LjczNSAwLjg5NCw3LjgwNyAwLjg5NCw3LjgwNyBDMC44OTQsNy44MDcgMy40OTMsMTAuNDk4IDMuNDkzLDEwLjQ5OCBDMy40OTMsMTAuNDk4IDMuNDkzLC0wLjAxMiAzLjQ5MywtMC4wMTIgQzQuMzgxLTAuMDEyIDUuMDA3LC0wLjAxMiA1LjAwNywtMC4wMTIgQzUuMDA3LC0wLjAxMiA1LjAwNywxMC40OTggNS4wMDcsMTAuNDk4IEM1LjAwNywxMC40OTggNy42MDYsNy44MDcgNy42MDYsNy44MDcgQzcuNjA2LDcuODA3IDguNTAyLDguNzM1IDguNTAyLDguNzM1IFoiLGlkPSJwYXRoLTEiIGNsYXNzPSJjbHMyIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz4KPC9zdmc+Cg==) no-repeat center center;
-            filter: grayscale(100%) brightness(200%);
-        }
-
-        .cell-wrapper__bottom.green.up:after,
-        .cell-wrapper__bottom.green.down:after {
-            filter: invert(72%) sepia(35%) saturate(718%) hue-rotate(125deg) brightness(95%) contrast(85%);
-        }
-
-        .cell-wrapper__bottom.red.up:after,
-        .cell-wrapper__bottom.red.down:after {
-            filter: invert(65%) sepia(45%) saturate(2800%) hue-rotate(315deg) brightness(105%) contrast(105%);
+            -webkit-mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTcgMTBsNSA1IDUtNXoiLz48L3N2Zz4=);
+            mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTcgMTBsNSA1IDUtNXoiLz48L3N2Zz4=);
         }
 
         .cell-wrapper__caption {
