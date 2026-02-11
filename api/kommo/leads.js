@@ -12,7 +12,47 @@ export default async function handler(req, res) {
         // Calcular fechas según el período
         const dates = getPeriodDates(period, date_from, date_to);
 
-        // Obtener leads del período actual
+        // ==========================================
+        // 1. Obtener Pipelines para identificar Ganados/Perdidos
+        // ==========================================
+        const pipelinesUrl = `https://${subdomain}.kommo.com/api/v4/leads/pipelines`;
+        const pipelinesResponse = await fetch(pipelinesUrl, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        let closedStatusIds = [];
+
+        if (pipelinesResponse.ok) {
+            const pipelinesData = await pipelinesResponse.json();
+            if (pipelinesData._embedded && pipelinesData._embedded.pipelines) {
+                pipelinesData._embedded.pipelines.forEach(pipeline => {
+                    if (pipeline._embedded && pipeline._embedded.statuses) {
+                        pipeline._embedded.statuses.forEach(status => {
+                            const statusName = status.name.toLowerCase();
+                            // Identificar estatus de cierre (Ganado o Perdido/Cancelado)
+                            if (statusName.includes('ganado') ||
+                                statusName.includes('exitoso') ||
+                                statusName.includes('won') ||
+                                statusName.includes('perdido') ||
+                                statusName.includes('no realizado') ||
+                                statusName.includes('rechazado') ||
+                                statusName.includes('cancelado')) {
+                                closedStatusIds.push(status.id);
+                            }
+                        });
+                    }
+                });
+            }
+        } else {
+            console.error('Failed to fetch pipelines, proceeding without status filtering');
+        }
+
+        // ==========================================
+        // 2. Obtener leads del período actual
+        // ==========================================
         const currentLeadsUrl = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `filter[created_at][from]=${dates.current.start}&` +
             `filter[created_at][to]=${dates.current.end}`;
@@ -32,22 +72,34 @@ export default async function handler(req, res) {
             throw apiError;
         }
 
-        // Obtener leads del período anterior
+        // ==========================================
+        // 3. Filtrar leads activos (Excluir Ganados/Perdidos)
+        // ==========================================
+        // El usuario quiere ver "Leads Nuevos" pero que coincida con "Etapas activas" del CRM
+        // Por defecto filtramos, a menos que se especifique lo contrario
+        const currentActiveLeads = currentLeads.filter(lead => !closedStatusIds.includes(lead.status_id));
+
+
+        // ==========================================
+        // 4. Obtener leads del período anterior (para comparación)
+        // ==========================================
         const previousLeadsUrl = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `filter[created_at][from]=${dates.previous.start}&` +
             `filter[created_at][to]=${dates.previous.end}`;
 
         let previousLeads = [];
+        let previousActiveLeads = [];
         try {
             previousLeads = await fetchAllLeads(previousLeadsUrl, accessToken);
+            previousActiveLeads = previousLeads.filter(lead => !closedStatusIds.includes(lead.status_id));
         } catch (error) {
             console.error('Error fetching previous leads:', error);
             // No fallar todo si falla el periodo anterior
         }
 
-        // Contar leads
-        const currentCount = currentLeads.length;
-        const previousCount = previousLeads.length;
+        // Contar leads ACTIVOS
+        const currentCount = currentActiveLeads.length;
+        const previousCount = previousActiveLeads.length;
 
         // Calcular porcentaje de cambio
         let percentChange = 0;
@@ -62,6 +114,7 @@ export default async function handler(req, res) {
             data: {
                 current: {
                     count: currentCount,
+                    total_created: currentLeads.length, // Dato extra por si acaso
                     period: period,
                 },
                 previous: {
