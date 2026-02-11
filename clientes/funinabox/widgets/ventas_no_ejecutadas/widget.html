@@ -154,8 +154,8 @@
         .tooltip {
             position: absolute;
             top: 25px;
-            right: -10px;
-            transform: none;
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.95);
             color: #FFFFFF;
             padding: 12px 15px;
@@ -163,7 +163,7 @@
             font-size: 12px;
             line-height: 1.5;
             white-space: normal;
-            width: 220px;
+            width: 190px;
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
@@ -183,7 +183,8 @@
             content: '';
             position: absolute;
             bottom: 100%;
-            right: 12px;
+            left: 50%;
+            transform: translateX(-50%);
             border: 6px solid transparent;
             border-bottom-color: rgba(0, 0, 0, 0.95);
         }
