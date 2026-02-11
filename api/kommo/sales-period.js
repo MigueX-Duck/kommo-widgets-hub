@@ -1,4 +1,5 @@
 import { getValidAccessToken } from '../../lib/tokenManager.js';
+import { fetchAllLeads } from '../../lib/kommoApi.js';
 
 export default async function handler(req, res) {
     const { period = 'month', date_from, date_to } = req.query;
@@ -102,28 +103,10 @@ async function getWonLeads(subdomain, accessToken, wonStatusIds, dateRange) {
         const url = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `${statusFilter}&` +
             `filter[closed_at][from]=${dateRange.start}&` +
-            `filter[closed_at][to]=${dateRange.end}&` +
-            `limit=250`;
+            `filter[closed_at][to]=${dateRange.end}`;
 
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            console.error('Error fetching won leads:', response.status);
-            return [];
-        }
-
-        const text = await response.text();
-        if (!text || text.trim() === '') {
-            return [];
-        }
-
-        const data = JSON.parse(text);
-        return data._embedded?.leads || [];
+        // Usar fetchAllLeads para paginación
+        return await fetchAllLeads(url, accessToken);
 
     } catch (error) {
         console.error('Error in getWonLeads:', error);
@@ -150,17 +133,17 @@ function calculateTotalSales(leads) {
 
 function formatCurrency(amount) {
     if (amount === 0) {
-        return '$0';
+        return '₡0';
     }
 
-    // Formatear con separadores de miles
+    // Formatear con separadores de miles y símbolo de colones
     if (amount >= 1000000) {
-        return '$' + (amount / 1000000).toFixed(1) + 'M';
+        return '₡' + (amount / 1000000).toFixed(1) + 'M';
     } else if (amount >= 1000) {
-        return '$' + (amount / 1000).toFixed(1) + 'K';
+        return '₡' + (amount / 1000).toFixed(1) + 'K';
     }
 
-    return '$' + amount.toLocaleString('en-US');
+    return '₡' + amount.toLocaleString('en-US'); // en-US usa comas para miles
 }
 
 function getPeriodDates(period, dateFrom, dateTo) {

@@ -58,9 +58,10 @@ export default async function handler(req, res) {
         // Obtener leads perdidos del período anterior
         const previousLostLeads = await getLostLeads(subdomain, accessToken, lostStatuses, dates.previous);
 
-        // Agrupar por motivo
-        const currentByReason = groupByReason(currentLostLeads, lostStatuses);
-        const previousByReason = groupByReason(previousLostLeads, lostStatuses);
+        // Agrupar por motivo (Usando Custom Field ID: 263326 "Razón de pérdida")
+        const LOSS_REASON_FIELD_ID = 263326;
+        const currentByReason = groupByLossReason(currentLostLeads, LOSS_REASON_FIELD_ID);
+        const previousByReason = groupByLossReason(previousLostLeads, LOSS_REASON_FIELD_ID);
 
         // Calcular totales
         const currentTotal = currentLostLeads.length;
@@ -109,28 +110,12 @@ async function getLostLeads(subdomain, accessToken, lostStatuses, dateRange) {
         const url = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `${statusFilter}&` +
             `filter[closed_at][from]=${dateRange.start}&` +
-            `filter[closed_at][to]=${dateRange.end}&` +
-            `limit=250`;
+            `filter[closed_at][to]=${dateRange.end}`;
 
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            console.error('Error fetching lost leads:', response.status);
-            return [];
-        }
-
-        const text = await response.text();
-        if (!text || text.trim() === '') {
-            return [];
-        }
-
-        const data = JSON.parse(text);
-        return data._embedded?.leads || [];
+        // Usar fetchAllLeads para paginación
+        // NOTA: fetchAllLeads ya devuelve los leads con _embedded, pero necesitamos asegurar
+        // que vengan los custom_fields_values. Por defecto vienen, así que debería estar bien.
+        return await fetchAllLeads(url, accessToken);
 
     } catch (error) {
         console.error('Error in getLostLeads:', error);
@@ -138,26 +123,30 @@ async function getLostLeads(subdomain, accessToken, lostStatuses, dateRange) {
     }
 }
 
-function groupByReason(leads, lostStatuses) {
+function groupByLossReason(leads, fieldId) {
     const grouped = {};
 
-    // Inicializar contadores
-    lostStatuses.forEach(status => {
-        grouped[status.name] = 0;
-    });
-
-    // Contar leads por status
     leads.forEach(lead => {
-        const status = lostStatuses.find(s => s.id === lead.status_id);
-        if (status) {
-            grouped[status.name]++;
+        let reason = 'Sin motivo especificado';
+
+        // Buscar el custom field específico
+        if (lead.custom_fields_values) {
+            const field = lead.custom_fields_values.find(f => f.field_id === fieldId);
+            if (field && field.values && field.values.length > 0) {
+                // Tomar el valor (enum o text)
+                reason = field.values[0].value;
+            }
         }
+
+        if (!grouped[reason]) {
+            grouped[reason] = 0;
+        }
+        grouped[reason]++;
     });
 
     // Convertir a array y ordenar por cantidad
     const result = Object.entries(grouped)
         .map(([reason, count]) => ({ reason, count }))
-        .filter(item => item.count > 0)
         .sort((a, b) => b.count - a.count);
 
     return result;

@@ -1,4 +1,5 @@
 import { getValidAccessToken } from '../../lib/tokenManager.js';
+import { fetchAllLeads } from '../../lib/kommoApi.js';
 
 export default async function handler(req, res) {
     const { period = 'month', date_from, date_to } = req.query;
@@ -100,28 +101,10 @@ async function getAllLeads(subdomain, accessToken, dateRange) {
     try {
         const url = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `filter[created_at][from]=${dateRange.start}&` +
-            `filter[created_at][to]=${dateRange.end}&` +
-            `limit=250`;
+            `filter[created_at][to]=${dateRange.end}`;
 
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            console.error('Error fetching all leads:', response.status);
-            return [];
-        }
-
-        const text = await response.text();
-        if (!text || text.trim() === '') {
-            return [];
-        }
-
-        const data = JSON.parse(text);
-        return data._embedded?.leads || [];
+        // Usar fetchAllLeads para paginación
+        return await fetchAllLeads(url, accessToken);
 
     } catch (error) {
         console.error('Error in getAllLeads:', error);
@@ -146,7 +129,7 @@ function getPeriodDates(period, dateFrom, dateTo) {
                 prevEndDate = new Date(startDate.getTime() - 1);
                 prevStartDate = new Date(prevEndDate.getTime() - durationMs);
 
-                return {
+                const result = {
                     current: {
                         start: Math.floor(startDate.getTime() / 1000),
                         end: Math.floor(endDate.getTime() / 1000),
@@ -156,6 +139,8 @@ function getPeriodDates(period, dateFrom, dateTo) {
                         end: Math.floor(prevEndDate.getTime() / 1000),
                     },
                 };
+
+                return result;
             }
             period = 'month';
 
@@ -196,7 +181,7 @@ function getPeriodDates(period, dateFrom, dateTo) {
             break;
     }
 
-    return {
+    const result = {
         current: {
             start: Math.floor(startDate.getTime() / 1000),
             end: Math.floor(now.getTime() / 1000),
@@ -206,4 +191,7 @@ function getPeriodDates(period, dateFrom, dateTo) {
             end: Math.floor(prevEndDate.getTime() / 1000),
         },
     };
+
+    console.log('Period dates:', period, result);
+    return result;
 }

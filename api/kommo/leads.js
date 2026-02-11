@@ -1,4 +1,5 @@
 import { getValidAccessToken } from '../../lib/tokenManager.js';
+import { fetchAllLeads } from '../../lib/kommoApi.js';
 
 export default async function handler(req, res) {
     const { period = 'month', date_from, date_to } = req.query;
@@ -14,69 +15,39 @@ export default async function handler(req, res) {
         // Obtener leads del período actual
         const currentLeadsUrl = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `filter[created_at][from]=${dates.current.start}&` +
-            `filter[created_at][to]=${dates.current.end}&` +
-            `limit=250`;
+            `filter[created_at][to]=${dates.current.end}`;
 
-        const currentResponse = await fetch(currentLeadsUrl, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!currentResponse.ok) {
-            const errorText = await currentResponse.text();
-            console.error('Kommo API error:', {
-                status: currentResponse.status,
-                statusText: currentResponse.statusText,
-                body: errorText,
-                url: currentLeadsUrl
-            });
-
-            if (currentResponse.status === 401) {
+        // Usar fetchAllLeads para obtener TODOS los leads (paginación)
+        let currentLeads = [];
+        try {
+            currentLeads = await fetchAllLeads(currentLeadsUrl, accessToken);
+        } catch (apiError) {
+            if (apiError.message.includes('401')) {
                 return res.status(401).json({
                     error: 'Token expired',
                     message: 'Please refresh the token',
                     refreshUrl: '/api/oauth/refresh'
                 });
             }
-            throw new Error(`API error: ${currentResponse.status} - ${errorText}`);
-        }
-
-        let currentData;
-        try {
-            const responseText = await currentResponse.text();
-            currentData = responseText ? JSON.parse(responseText) : { _embedded: { leads: [] } };
-        } catch (parseError) {
-            console.error('Failed to parse current leads response:', parseError);
-            currentData = { _embedded: { leads: [] } };
+            throw apiError;
         }
 
         // Obtener leads del período anterior
         const previousLeadsUrl = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `filter[created_at][from]=${dates.previous.start}&` +
-            `filter[created_at][to]=${dates.previous.end}&` +
-            `limit=250`;
+            `filter[created_at][to]=${dates.previous.end}`;
 
-        const previousResponse = await fetch(previousLeadsUrl, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        });
-
-        let previousData;
+        let previousLeads = [];
         try {
-            const responseText = await previousResponse.text();
-            previousData = responseText ? JSON.parse(responseText) : { _embedded: { leads: [] } };
-        } catch (parseError) {
-            console.error('Failed to parse previous leads response:', parseError);
-            previousData = { _embedded: { leads: [] } };
+            previousLeads = await fetchAllLeads(previousLeadsUrl, accessToken);
+        } catch (error) {
+            console.error('Error fetching previous leads:', error);
+            // No fallar todo si falla el periodo anterior
         }
 
         // Contar leads
-        const currentCount = currentData._embedded?.leads?.length || 0;
-        const previousCount = previousData._embedded?.leads?.length || 0;
+        const currentCount = currentLeads.length;
+        const previousCount = previousLeads.length;
 
         // Calcular porcentaje de cambio
         let percentChange = 0;

@@ -1,4 +1,5 @@
 import { getValidAccessToken } from '../../lib/tokenManager.js';
+import { fetchAllLeads } from '../../lib/kommoApi.js';
 
 export default async function handler(req, res) {
     const { period = 'month', date_from, date_to } = req.query;
@@ -122,28 +123,11 @@ async function getLeadsByStatus(subdomain, accessToken, statusIds, dateRange) {
         const url = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `${statusFilter}&` +
             `filter[closed_at][from]=${dateRange.start}&` +
-            `filter[closed_at][to]=${dateRange.end}&` +
-            `limit=250`;
+            `filter[closed_at][to]=${dateRange.end}`;
 
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            console.error(`Error fetching leads for statuses ${statusIds}:`, response.status);
-            return 0;
-        }
-
-        const text = await response.text();
-        if (!text || text.trim() === '') {
-            return 0;
-        }
-
-        const data = JSON.parse(text);
-        return data._embedded?.leads?.length || 0;
+        // Usar fetchAllLeads para paginación
+        const leads = await fetchAllLeads(url, accessToken);
+        return leads.length;
 
     } catch (error) {
         console.error('Error in getLeadsByStatus:', error);
