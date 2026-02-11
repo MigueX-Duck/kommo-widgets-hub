@@ -119,10 +119,15 @@ export default async function handler(req, res) {
 
         return res.status(200).json({
             success: true,
+            debug: {
+                total_retrieved: currentLeads.length,
+                closed_ids_count: closedStatusIds.length,
+                pipelines_ok: pipelinesResponse.ok
+            },
             data: {
                 current: {
                     count: currentCount,
-                    total_created: currentLeads.length, // Dato extra por si acaso
+                    total_created: currentLeads.length,
                     period: period,
                 },
                 previous: {

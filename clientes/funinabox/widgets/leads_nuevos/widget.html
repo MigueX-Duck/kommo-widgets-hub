@@ -295,14 +295,7 @@
                 lastDateFrom = dateFrom;
                 lastDateTo = dateTo;
 
-                // Construir URL de la API
                 let apiUrl = `${API_BASE_URL}/leads?period=${period}`;
-
-                // Si es período custom y hay fechas, agregarlas
-                if (period === 'custom' && dateFrom && dateTo && dateFrom !== 'false' && dateTo !== 'false') {
-                    apiUrl += `&date_from=${encodeURIComponent(dateFrom)}&date_to=${encodeURIComponent(dateTo)}`;
-                }
-
                 // Llamar a la API
                 const response = await fetch(apiUrl);
 
