@@ -71,16 +71,6 @@
             mask-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZD0iTTcgMTBsNSA1IDUtNXoiLz48L3N2Zz4=);
         }
 
-        .cell-wrapper__bottom.green.up:after,
-        .cell-wrapper__bottom.green.down:after {
-            filter: invert(72%) sepia(35%) saturate(718%) hue-rotate(125deg) brightness(95%) contrast(85%);
-        }
-
-        .cell-wrapper__bottom.red.up:after,
-        .cell-wrapper__bottom.red.down:after {
-            filter: invert(65%) sepia(45%) saturate(2800%) hue-rotate(315deg) brightness(105%) contrast(105%);
-        }
-
         .cell-wrapper__caption {
             font-size: 15px;
             font-weight: bold;
@@ -91,7 +81,14 @@
         }
 
         .cell-wrapper__data {
+            height: 50px;
             margin-bottom: 10px;
+        }
+
+        .cell-wrapper__data__num {
+            font-size: 40px;
+            line-height: 50px;
+            font-family: 'Open Sans', sans-serif;
         }
 
         .cell-wrapper__channels {
@@ -252,6 +249,11 @@
                 <span id="percentValue">-</span>
             </div>
         </div>
+        <div class="cell-wrapper__data">
+            <a href="#" id="salesLink" class="cell-wrapper__data__num" title="Total de ventas ganadas">
+                <span id="totalValue">-</span>
+            </a>
+        </div>
         <div class="cell-wrapper__channels" id="channelsList">
             <!-- Channels will be inserted here -->
         </div>
@@ -352,8 +354,9 @@
 
                 if (data.success) {
                     const byChannel = data.data.current.by_channel;
+                    const total = data.data.current.total;
                     const percentChange = data.data.change.percent;
-                    updateUI(byChannel, percentChange);
+                    updateUI(total, byChannel, percentChange);
                     console.log('✅ Conectado');
                 } else {
                     showError('Error al cargar datos');
@@ -364,9 +367,14 @@
             }
         }
 
-        function updateUI(channels, percentChange) {
+        function updateUI(total, channels, percentChange) {
             var wrapper = document.querySelector('.cell-wrapper');
             wrapper.classList.remove('loading');
+
+            var totalValue = document.getElementById('totalValue');
+            var salesLink = document.getElementById('salesLink');
+            salesLink.setAttribute('title', 'Ventas totales: ' + total);
+            totalValue.textContent = total;
 
             var channelsList = document.getElementById('channelsList');
             var emptyState = document.getElementById('emptyState');
