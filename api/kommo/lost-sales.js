@@ -1,4 +1,5 @@
 import { getValidAccessToken } from '../../lib/tokenManager.js';
+import { fetchAllLeads } from '../../lib/kommoApi.js';
 
 export default async function handler(req, res) {
     const { period = 'month', date_from, date_to } = req.query;
@@ -55,13 +56,19 @@ export default async function handler(req, res) {
         }
 
         const lostStatuses = Array.from(lostStatusesMap.values());
-        console.log('Lost statuses:', lostStatuses);
+        console.log(`Found ${lostStatuses.length} lost statuses:`, lostStatuses.map(s => s.name));
+
+        if (lostStatuses.length === 0) {
+            console.warn('No lost statuses identified in any pipeline');
+        }
 
         // Obtener leads perdidos del período actual
         const currentLostLeads = await getLostLeads(subdomain, accessToken, lostStatuses, dates.current);
+        console.log(`Current leads found: ${currentLostLeads.length}`);
 
         // Obtener leads perdidos del período anterior
         const previousLostLeads = await getLostLeads(subdomain, accessToken, lostStatuses, dates.previous);
+        console.log(`Previous leads found: ${previousLostLeads.length}`);
 
 
         // Agrupar por motivo (Usando Custom Field ID: 263326 "Razón de pérdida")
@@ -165,8 +172,29 @@ function getPeriodDates(period, dateFrom, dateTo) {
     switch (period) {
         case 'custom':
             if (dateFrom && dateTo) {
-                const [dayFrom, monthFrom, yearFrom] = dateFrom.split('/');
-                const [dayTo, monthTo, yearTo] = dateTo.split('/');
+                let dayFrom, monthFrom, yearFrom;
+                let dayTo, monthTo, yearTo;
+
+                // Parse date_from
+                if (dateFrom.includes('/')) {
+                    [dayFrom, monthFrom, yearFrom] = dateFrom.split('/');
+                } else if (dateFrom.includes('-')) {
+                    [yearFrom, monthFrom, dayFrom] = dateFrom.split('-');
+                }
+
+                // Parse date_to
+                if (dateTo.includes('/')) {
+                    [dayTo, monthTo, yearTo] = dateTo.split('/');
+                } else if (dateTo.includes('-')) {
+                    [yearTo, monthTo, dayTo] = dateTo.split('-');
+                }
+
+                if (!yearFrom || !monthFrom || !dayFrom || !yearTo || !monthTo || !dayTo) {
+                    console.error('Invalid date format:', { dateFrom, dateTo });
+                    // Fallback to month if parsing fails
+                    period = 'month';
+                    break;
+                }
 
                 startDate = new Date(yearFrom, monthFrom - 1, dayFrom, 0, 0, 0, 0);
                 const endDate = new Date(yearTo, monthTo - 1, dayTo, 23, 59, 59, 999);
@@ -174,6 +202,13 @@ function getPeriodDates(period, dateFrom, dateTo) {
                 const durationMs = endDate.getTime() - startDate.getTime();
                 prevEndDate = new Date(startDate.getTime() - 1);
                 prevStartDate = new Date(prevEndDate.getTime() - durationMs);
+
+                // Asegurar que timestamps sean válidos
+                if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                    console.error('Invalid Date object created:', { startDate, endDate });
+                    period = 'month';
+                    break;
+                }
 
                 return {
                     current: {
@@ -187,6 +222,7 @@ function getPeriodDates(period, dateFrom, dateTo) {
                 };
             }
             period = 'month';
+        // Fallthrough to default logic if dates are missing
 
         case 'day':
             startDate = new Date(now);

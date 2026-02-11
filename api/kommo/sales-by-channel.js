@@ -1,4 +1,5 @@
 import { getValidAccessToken } from '../../lib/tokenManager.js';
+import { fetchAllLeads } from '../../lib/kommoApi.js';
 
 export default async function handler(req, res) {
     const { period = 'month', date_from, date_to } = req.query;
@@ -102,28 +103,9 @@ async function getWonLeads(subdomain, accessToken, wonStatusIds, dateRange) {
             `${statusFilter}&` +
             `filter[closed_at][from]=${dateRange.start}&` +
             `filter[closed_at][to]=${dateRange.end}&` +
-            `with=contacts&` +
-            `limit=250`;
+            `with=contacts`;
 
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            console.error('Error fetching won leads:', response.status);
-            return [];
-        }
-
-        const text = await response.text();
-        if (!text || text.trim() === '') {
-            return [];
-        }
-
-        const data = JSON.parse(text);
-        return data._embedded?.leads || [];
+        return await fetchAllLeads(url, accessToken);
 
     } catch (error) {
         console.error('Error in getWonLeads:', error);

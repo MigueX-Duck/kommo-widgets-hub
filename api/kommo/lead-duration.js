@@ -1,4 +1,5 @@
 import { getValidAccessToken } from '../../lib/tokenManager.js';
+import { fetchAllLeads } from '../../lib/kommoApi.js';
 
 export default async function handler(req, res) {
     const { period = 'month', date_from, date_to } = req.query;
@@ -104,28 +105,9 @@ async function getClosedLeads(subdomain, accessToken, closedStatusIds, dateRange
         const url = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `${statusFilter}&` +
             `filter[closed_at][from]=${dateRange.start}&` +
-            `filter[closed_at][to]=${dateRange.end}&` +
-            `limit=250`;
+            `filter[closed_at][to]=${dateRange.end}`;
 
-        const response = await fetch(url, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            console.error('Error fetching closed leads:', response.status);
-            return [];
-        }
-
-        const text = await response.text();
-        if (!text || text.trim() === '') {
-            return [];
-        }
-
-        const data = JSON.parse(text);
-        return data._embedded?.leads || [];
+        return await fetchAllLeads(url, accessToken);
 
     } catch (error) {
         console.error('Error in getClosedLeads:', error);
