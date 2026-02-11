@@ -33,10 +33,7 @@ export default async function handler(req, res) {
                         pipeline._embedded.statuses.forEach(status => {
                             const statusName = status.name.toLowerCase();
                             // Identificar estatus de cierre (Ganado o Perdido/Cancelado)
-                            if (statusName.includes('ganado') ||
-                                statusName.includes('exitoso') ||
-                                statusName.includes('won') ||
-                                statusName.includes('perdido') ||
+                            if (statusName.includes('perdido') ||
                                 statusName.includes('no realizado') ||
                                 statusName.includes('rechazado') ||
                                 statusName.includes('cancelado')) {
