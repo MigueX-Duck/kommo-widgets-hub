@@ -36,8 +36,42 @@
             text-decoration: none;
         }
 
-        .cell-wrapper {
-            padding: 20px 15px 15px 15px;
+        .cell-wrapper__bottom.red {
+            color: #fe6e6e;
+        }
+
+        .cell-wrapper__bottom.green {
+            color: #41cfc4;
+        }
+
+        .cell-wrapper__bottom:after {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 14px;
+            vertical-align: middle;
+            margin-top: -4px;
+            margin-left: 3px;
+        }
+
+        .cell-wrapper__bottom.up:after {
+            background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCIgd2lkdGg9IjgiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCA4IDEzIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogY3VycmVudENvbG9yOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBkPSJNOC41MDIsNC4yNzkgQzguNTAyLDQuMjc5IDcuNjA2LDUuMjA3IDcuNjA2LDUuMjA3IEM3LjYwNiw1LjIwNyA1LjAwNywyLjUxNiA1LjAwNywyLjUxNiA1LjAwNywyLjUxNiA1LjAwNywxMy4wMjYgNS4wMDcsMTMuMDI2IEM1LjAwNywxMy4wMjYgMy40OTMsMTMuMDI2IDMuNDkzLDEzLjAyNiBDMy40OTMsMTMuMDI2IDMuNDkzLDIuNTE2IDMuNDkzLDIuNTE2IEMzLjQ5MywyLjUxNiAwLjg5NCw1LjIwNyAwLjg5NCw1LjIwNyBDMC44OTQsNS4yMDcgLTAuMDAyLDQuMjc5IC0wLjAwMiw0LjI3OSBDLTAuMDAyLDQuMjc5IDQuMTE5LDAuMDEyIDQuMTE5LDAuMDEyIEM0LjExOSwwLjAxMiA0LjI1MCwwLjE0OCA0LjI1MCwwLjE0OCBDNC4yNSwwLjE0OCA0LjM4MSwwLjAxMiA0LjM4MSwwLjAxMiBDNC4zODEsMC4wMTIgOC41MDIsNC4yNzkgOC41MDIsNC4yNzkgWiIgaWQ9InBhdGgtMSIgY2xzLTIiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPgo8L3N2Zz4K) no-repeat center center;
+            filter: grayscale(100%) brightness(200%);
+        }
+
+        .cell-wrapper__bottom.down:after {
+            background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCIgd2lkdGg9IjkiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCA5IDEzIj4KICA8ZGVmcz4KICAgIDxzdHlsZT4KCiAgICAgIC5jbHMtMiB7CiAgICAgICAgZmlsbDogY3VycmVudENvbG9yOwogICAgICB9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cGF0aCBkPSJNOC41MDIsOC43MzUgQzguNTAyLDguNzM1IDQuMjgxLDEzLjAwMiA0LjM4MSwxMy4wMDIgQzQuMzgxLDEzLjAwMiA0LjI1MCwxMi44NjYgNC4yNTAsMTIuODY2IEM0LjI1MCwxMi44NjYgNC4xMTksMTMuMDAyIDQuMTE5LDEzLjAwMiBDNC4xMTksMTMuMDAyIC0wLjAwMiw4LjczNSAtMC4wMDIsOC43MzUgQy0wLjAwMiw4LjczNSAwLjg5NCw3LjgwNyAwLjg5NCw3LjgwNyBDMC44OTQsNy44MDcgMy40OTMsMTAuNDk4IDMuNDkzLDEwLjQ5OCBDMy40OTMsMTAuNDk4IDMuNDkzLC0wLjAxMiAzLjQ5MywtMC4wMTIgQzQuMzgxLTAuMDEyIDUuMDA3LC0wLjAxMiA1LjAwNywtMC4wMTIgQzUuMDA3LC0wLjAxMiA1LjAwNywxMC40OTggNS4wMDcsMTAuNDk4IEM1LjAwNywxMC40OTggNy42MDYsNy44MDcgNy42MDYsNy44MDcgQzcuNjA2LDcuODA3IDguNTAyLDguNzM1IDguNTAyLDguNzM1IFoiLGlkPSJwYXRoLTEiIGNsYXNzPSJjbHMyIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz4KPC9zdmc+Cg==) no-repeat center center;
+            filter: grayscale(100%) brightness(200%);
+        }
+
+        .cell-wrapper__bottom.green.up:after,
+        .cell-wrapper__bottom.green.down:after {
+            filter: invert(72%) sepia(35%) saturate(718%) hue-rotate(125deg) brightness(95%) contrast(85%);
+        }
+
+        .cell-wrapper__bottom.red.up:after,
+        .cell-wrapper__bottom.red.down:after {
+            filter: invert(65%) sepia(45%) saturate(2800%) hue-rotate(315deg) brightness(105%) contrast(105%);
         }
 
         .cell-wrapper__caption {
@@ -304,7 +338,8 @@
 
                 if (data.success) {
                     const byChannel = data.data.current.by_channel;
-                    updateUI(byChannel);
+                    const percentChange = data.data.change.percent;
+                    updateUI(byChannel, percentChange);
                     console.log('✅ Conectado');
                 } else {
                     showError('Error al cargar datos');
@@ -315,7 +350,7 @@
             }
         }
 
-        function updateUI(channels) {
+        function updateUI(channels, percentChange) {
             var wrapper = document.querySelector('.cell-wrapper');
             wrapper.classList.remove('loading');
 
@@ -323,6 +358,31 @@
             var emptyState = document.getElementById('emptyState');
 
             channelsList.innerHTML = '';
+
+            // Add percent change display if available
+            if (typeof percentChange === 'number') {
+                let percentDiv = document.createElement('div');
+                percentDiv.className = 'cell-wrapper__bottom';
+                let percentValue = document.createElement('span');
+                percentDiv.appendChild(percentValue);
+
+                percentDiv.classList.remove('red', 'green', 'up', 'down');
+
+                // En Canales: (+) es green (bueno)
+                if (percentChange > 0) {
+                    percentDiv.classList.add('green', 'up');
+                    percentValue.textContent = '+' + percentChange + '%';
+                } else if (percentChange < 0) {
+                    percentDiv.classList.add('red', 'down');
+                    percentValue.textContent = percentChange + '%';
+                } else {
+                    percentValue.textContent = '0%';
+                }
+                // Insert percentDiv before channelsList or append to caption
+                // For this example, let's append it to the caption for visibility
+                document.querySelector('.cell-wrapper__caption').appendChild(percentDiv);
+            }
+
 
             if (channels && channels.length > 0) {
                 emptyState.style.display = 'none';

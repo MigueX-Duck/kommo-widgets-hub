@@ -39,7 +39,10 @@ export default async function handler(req, res) {
                         const statusName = status.name.toLowerCase();
                         if (statusName.includes('ganado') || statusName.includes('exitoso')) {
                             wonStatusIds.push(status.id);
-                        } else if (statusName.includes('perdido') || statusName.includes('no realizado')) {
+                        } else if (statusName.includes('perdido') ||
+                            statusName.includes('no realizado') ||
+                            statusName.includes('rechazado') ||
+                            statusName.includes('cancelado')) {
                             lostStatusIds.push(status.id);
                         }
                     });
