@@ -43,6 +43,7 @@
             font-size: 15px;
             font-weight: bold;
             margin-bottom: 15px;
+            position: relative;
         }
 
         .cell-wrapper__data {
@@ -106,20 +107,102 @@
             padding: 20px;
         }
 
-        /* Channel Icons Colors */
-        .icon-whatsapp { color: #25D366; }
-        .icon-instagram { color: #E4405F; }
-        .icon-facebook { color: #1877F2; }
-        .icon-email { color: #EA4335; }
-        .icon-web { color: #4285F4; }
-        .icon-default { color: #888; }
+        /* Tooltip styles */
+        .info-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 8px;
+            position: relative;
+            vertical-align: middle;
+        }
 
+        .info-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: #FFFFFF;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 12px;
+            line-height: 1.5;
+            white-space: normal;
+            width: 220px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            font-family: 'PT Sans', sans-serif;
+            font-weight: normal;
+            text-transform: none;
+        }
+
+        .info-icon:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.95);
+        }
+
+        /* Channel Icons Colors */
+        .icon-whatsapp {
+            color: #25D366;
+        }
+
+        .icon-instagram {
+            color: #E4405F;
+        }
+
+        .icon-facebook {
+            color: #1877F2;
+        }
+
+        .icon-email {
+            color: #EA4335;
+        }
+
+        .icon-web {
+            color: #4285F4;
+        }
+
+        .icon-default {
+            color: #888;
+        }
     </style>
 </head>
 
 <body>
     <div class="cell-wrapper loading">
-        <div class="cell-wrapper__caption">Ventas por Canal</div>
+        <div class="cell-wrapper__caption">
+            Ventas por Canal
+            <span class="info-icon">
+                ?
+                <div class="tooltip">
+                    Origen de los leads ganados. Ayuda a identificar cuáles campañas son más efectivas.
+                </div>
+            </span>
+        </div>
         <div class="cell-wrapper__channels" id="channelsList">
             <!-- Channels will be inserted here -->
         </div>
@@ -237,14 +320,14 @@
 
             var channelsList = document.getElementById('channelsList');
             var emptyState = document.getElementById('emptyState');
-            
+
             channelsList.innerHTML = '';
 
             if (channels && channels.length > 0) {
                 emptyState.style.display = 'none';
                 // Mostrar máximo 5 canales
                 const topChannels = channels.slice(0, 5);
-                
+
                 topChannels.forEach(item => {
                     const icon = getChannelIcon(item.channel);
                     const channelDiv = document.createElement('div');

@@ -98,7 +98,7 @@
         .cell-wrapper__bottom {
             position: relative;
             white-space: nowrap;
-            overflow: hidden;
+            /* overflow: hidden; Removed to allow tooltips to show */
             width: 100%;
         }
 
@@ -154,6 +154,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             font-family: 'PT Sans', sans-serif;
             font-weight: normal;
+            text-transform: none;
         }
 
         .info-icon:hover .tooltip {
