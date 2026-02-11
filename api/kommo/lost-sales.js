@@ -28,28 +28,33 @@ export default async function handler(req, res) {
         const pipelinesData = await pipelinesResponse.json();
 
         // Identificar status perdidos con sus nombres
-        let lostStatuses = [];
+        const lostStatusesMap = new Map();
 
         if (pipelinesData._embedded && pipelinesData._embedded.pipelines) {
             pipelinesData._embedded.pipelines.forEach(pipeline => {
                 if (pipeline._embedded && pipeline._embedded.statuses) {
                     pipeline._embedded.statuses.forEach(status => {
                         const statusName = status.name.toLowerCase();
+                        // Usar la misma lógica que closed-leads.js para consistencia
                         if (statusName.includes('perdido') ||
                             statusName.includes('no realizado') ||
                             statusName.includes('rechazado') ||
-                            statusName.includes('cancelado') ||
-                            (statusName.includes('cerrad') && !statusName.includes('ganado') && !statusName.includes('exitoso'))) {
-                            lostStatuses.push({
-                                id: status.id,
-                                name: status.name,
-                            });
+                            statusName.includes('cancelado')) {
+
+                            // Usar Map para evitar duplicados por ID
+                            if (!lostStatusesMap.has(status.id)) {
+                                lostStatusesMap.set(status.id, {
+                                    id: status.id,
+                                    name: status.name,
+                                });
+                            }
                         }
                     });
                 }
             });
         }
 
+        const lostStatuses = Array.from(lostStatusesMap.values());
         console.log('Lost statuses:', lostStatuses);
 
         // Obtener leads perdidos del período actual
@@ -57,6 +62,7 @@ export default async function handler(req, res) {
 
         // Obtener leads perdidos del período anterior
         const previousLostLeads = await getLostLeads(subdomain, accessToken, lostStatuses, dates.previous);
+
 
         // Agrupar por motivo (Usando Custom Field ID: 263326 "Razón de pérdida")
         const LOSS_REASON_FIELD_ID = 263326;
