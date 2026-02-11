@@ -97,8 +97,9 @@ async function getWonLeads(subdomain, accessToken, wonStatusIds, dateRange) {
     }
 
     try {
-        // Construir filtro para múltiples status
-        const statusFilter = wonStatusIds.map(id => `filter[statuses][0][status_id][]=${id}`).join('&');
+        // Construir filtro para múltiples status (deduplicados)
+        const uniqueWonIds = [...new Set(wonStatusIds)];
+        const statusFilter = uniqueWonIds.map(id => `filter[status][]=${id}`).join('&');
 
         const url = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `${statusFilter}&` +
@@ -153,8 +154,29 @@ function getPeriodDates(period, dateFrom, dateTo) {
     switch (period) {
         case 'custom':
             if (dateFrom && dateTo) {
-                const [dayFrom, monthFrom, yearFrom] = dateFrom.split('/');
-                const [dayTo, monthTo, yearTo] = dateTo.split('/');
+                let dayFrom, monthFrom, yearFrom;
+                let dayTo, monthTo, yearTo;
+
+                // Parse date_from
+                if (dateFrom.includes('/')) {
+                    [dayFrom, monthFrom, yearFrom] = dateFrom.split('/');
+                } else if (dateFrom.includes('-')) {
+                    [yearFrom, monthFrom, dayFrom] = dateFrom.split('-');
+                }
+
+                // Parse date_to
+                if (dateTo.includes('/')) {
+                    [dayTo, monthTo, yearTo] = dateTo.split('/');
+                } else if (dateTo.includes('-')) {
+                    [yearTo, monthTo, dayTo] = dateTo.split('-');
+                }
+
+                if (!yearFrom || !monthFrom || !dayFrom || !yearTo || !monthTo || !dayTo) {
+                    console.error('Invalid date format:', { dateFrom, dateTo });
+                    // Fallback to month if parsing fails
+                    period = 'month';
+                    break;
+                }
 
                 startDate = new Date(yearFrom, monthFrom - 1, dayFrom, 0, 0, 0, 0);
                 const endDate = new Date(yearTo, monthTo - 1, dayTo, 23, 59, 59, 999);
@@ -162,6 +184,13 @@ function getPeriodDates(period, dateFrom, dateTo) {
                 const durationMs = endDate.getTime() - startDate.getTime();
                 prevEndDate = new Date(startDate.getTime() - 1);
                 prevStartDate = new Date(prevEndDate.getTime() - durationMs);
+
+                // Asegurar que timestamps sean válidos
+                if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                    console.error('Invalid Date object created:', { startDate, endDate });
+                    period = 'month';
+                    break;
+                }
 
                 return {
                     current: {

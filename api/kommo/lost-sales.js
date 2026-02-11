@@ -117,8 +117,9 @@ async function getLostLeads(subdomain, accessToken, lostStatuses, dateRange) {
     }
 
     try {
-        // Construir filtro para múltiples status
-        const statusFilter = lostStatuses.map(s => `filter[statuses][0][status_id][]=${s.id}`).join('&');
+        // Construir filtro para múltiples status (deduplicados)
+        const uniqueLostIds = [...new Set(lostStatuses.map(s => s.id))];
+        const statusFilter = uniqueLostIds.map(id => `filter[status][]=${id}`).join('&');
 
         const url = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `${statusFilter}&` +

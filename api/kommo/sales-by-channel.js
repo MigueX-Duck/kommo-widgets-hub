@@ -97,7 +97,8 @@ async function getWonLeads(subdomain, accessToken, wonStatusIds, dateRange) {
     }
 
     try {
-        const statusFilter = wonStatusIds.map(id => `filter[statuses][0][status_id][]=${id}`).join('&');
+        const uniqueWonIds = [...new Set(wonStatusIds)];
+        const statusFilter = uniqueWonIds.map(id => `filter[status][]=${id}`).join('&');
 
         const url = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `${statusFilter}&` +

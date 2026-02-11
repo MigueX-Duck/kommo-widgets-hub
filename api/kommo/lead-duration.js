@@ -99,8 +99,9 @@ async function getClosedLeads(subdomain, accessToken, closedStatusIds, dateRange
     }
 
     try {
-        // Construir filtro para múltiples status
-        const statusFilter = closedStatusIds.map(id => `filter[statuses][0][status_id][]=${id}`).join('&');
+        // Construir filtro para múltiples status (deduplicados)
+        const uniqueClosedIds = [...new Set(closedStatusIds)];
+        const statusFilter = uniqueClosedIds.map(id => `filter[status][]=${id}`).join('&');
 
         const url = `https://${subdomain}.kommo.com/api/v4/leads?` +
             `${statusFilter}&` +
