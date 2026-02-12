@@ -98,15 +98,9 @@ export default async function handler(req, res) {
             // No fallar todo si falla el periodo anterior
         }
 
-        // Contar leads ACTIVOS
-        let currentCount = currentActiveLeads.length;
-        let previousCount = previousActiveLeads.length;
-
-        // Failsafe: Si el filtro borró todo pero el raw tiene datos, algo salió mal
-        if (currentCount === 0 && currentLeads.length > 0) {
-            console.error('Filter resulted in 0 leads, reverting to total');
-            currentCount = currentLeads.length;
-        }
+        // Contar leads TOTALES (Unfiltered)
+        let currentCount = currentLeads.length;
+        let previousCount = previousLeads.length;
 
         // Calcular porcentaje de cambio
         let percentChange = 0;
