@@ -296,6 +296,9 @@
                 lastDateTo = dateTo;
 
                 let apiUrl = `${API_BASE_URL}/leads?period=${period}`;
+                if (dateFrom && dateFrom !== 'false') apiUrl += `&date_from=${encodeURIComponent(dateFrom)}`;
+                if (dateTo && dateTo !== 'false') apiUrl += `&date_to=${encodeURIComponent(dateTo)}`;
+
                 // Llamar a la API
                 const response = await fetch(apiUrl);
 
