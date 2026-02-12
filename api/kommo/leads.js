@@ -121,8 +121,9 @@ export default async function handler(req, res) {
             success: true,
             debug: {
                 total_retrieved: currentLeads.length,
-                closed_ids_count: closedStatusIds.length,
-                pipelines_ok: pipelinesResponse.ok
+                closed_ids: closedStatusIds,
+                pipelines_ok: pipelinesResponse.ok,
+                period_used: dates.current,
             },
             data: {
                 current: {
