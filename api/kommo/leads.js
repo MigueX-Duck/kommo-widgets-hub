@@ -31,23 +31,16 @@ export default async function handler(req, res) {
                 pipelinesData._embedded.pipelines.forEach(pipeline => {
                     if (pipeline._embedded && pipeline._embedded.statuses) {
                         pipeline._embedded.statuses.forEach(status => {
-                            // En Kommo API v4:
-                            // type 142 = Ganado (Won)
-                            // type 143 = Perdido (Lost)
-                            if (status.type === 143) {
-                                closedStatusIds.push(status.id);
-                            } else {
-                                // Fallback por si el type no viene (depende de la versión/configuración)
-                                const statusName = status.name.toLowerCase();
-                                if (statusName.includes('perdido') ||
-                                    statusName.includes('no realizado') ||
-                                    statusName.includes('rechazado') ||
-                                    statusName.includes('cancelado') ||
-                                    statusName.includes('spam') ||
-                                    statusName.includes('descartado')) {
-                                    if (!closedStatusIds.includes(status.id)) {
-                                        closedStatusIds.push(status.id);
-                                    }
+                            const statusName = status.name.toLowerCase();
+                            if (statusName.includes('perdido') ||
+                                statusName.includes('no realizado') ||
+                                statusName.includes('rechazado') ||
+                                statusName.includes('cancelado') ||
+                                statusName.includes('spam') ||
+                                statusName.includes('descartado') ||
+                                status.type === 143) {
+                                if (!closedStatusIds.includes(status.id)) {
+                                    closedStatusIds.push(status.id);
                                 }
                             }
                         });
@@ -106,8 +99,14 @@ export default async function handler(req, res) {
         }
 
         // Contar leads ACTIVOS
-        const currentCount = currentActiveLeads.length;
-        const previousCount = previousActiveLeads.length;
+        let currentCount = currentActiveLeads.length;
+        let previousCount = previousActiveLeads.length;
+
+        // Failsafe: Si el filtro borró todo pero el raw tiene datos, algo salió mal
+        if (currentCount === 0 && currentLeads.length > 0) {
+            console.error('Filter resulted in 0 leads, reverting to total');
+            currentCount = currentLeads.length;
+        }
 
         // Calcular porcentaje de cambio
         let percentChange = 0;
